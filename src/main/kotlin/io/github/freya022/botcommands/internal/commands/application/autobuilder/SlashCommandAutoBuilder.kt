@@ -254,7 +254,8 @@ internal class SlashCommandAutoBuilder(
                     "Slash command annotated with ${annotationRef<TopLevelSlashCommandData>()} must only have a description set once"
                 }
             }
-            description = annotation.description.nullIfBlank() ?: topLevelMetadata.annotation.description.nullIfBlank()
+            // Prioritize [[TopLevelSlashCommandData]] as this is top level
+            topLevelMetadata.annotation.description.nullIfBlank() ?: annotation.description.nullIfBlank()
 
             addSubcommands(manager, subcommandsMetadata, metadata.commandId)
 
