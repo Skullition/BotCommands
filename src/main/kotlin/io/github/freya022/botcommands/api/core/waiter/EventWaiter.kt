@@ -2,6 +2,7 @@ package io.github.freya022.botcommands.api.core.waiter
 
 import io.github.freya022.botcommands.api.core.config.BConfigBuilder
 import io.github.freya022.botcommands.api.core.service.annotations.InterfacedService
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.Event
 
 /**
@@ -10,11 +11,14 @@ import net.dv8tion.jda.api.events.Event
  *
  * You can set multiple preconditions, timeouts and actions to run when the event gets received / has an exception, etc...
  *
+ * You can also use [JDA.listenOnce] if you wish.
+ *
  * ### Example
  * This example uses every action, has a timeout of 1 second and only triggers if the caller is the same as the user who triggered the previously entered command
  *
  * ```java
- * final Future<MessageReceivedEvent> future = EventWaiter.of(MessageReceivedEvent.class)
+ * // Get the 'eventWaiter' instance by dependency injection
+ * final Future<MessageReceivedEvent> future = eventWaiter.of(MessageReceivedEvent.class)
  *     .setOnComplete((f, evt, throwable) -> System.out.println("Completed with an event " + evt + " or an exception " + throwable))
  *     .setOnTimeout(() -> System.err.println("Timeout"))
  *     .setOnSuccess(evt -> System.out.println("Success, received event: " + evt))
