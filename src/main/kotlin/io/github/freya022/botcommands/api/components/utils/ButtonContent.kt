@@ -21,7 +21,7 @@ data class ButtonContent(val style: ButtonStyle, val label: String?, val emoji: 
     }
 
     /**
-     * Creates a new button content with the provided emoji alias / emoji unicode.
+     * Creates a new button content with the provided emoji alias, Unicode, or Markdown.
      *
      * ### Example
      * ```kt
