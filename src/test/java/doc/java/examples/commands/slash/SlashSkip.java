@@ -29,7 +29,7 @@ public class SlashSkip implements RateLimitProvider {
 
     @Override
     public void declareRateLimit(@NotNull RateLimitManager manager) {
-        final var bucketFactory = Buckets.spikeProtected(
+        final var bucketFactory = Buckets.createSpikeProtected(
                 /* Capacity */ 5,
                 /* Duration */ Duration.ofMinutes(1),
                 /* Spike capacity */ 2,

@@ -14,6 +14,7 @@ object Buckets {
     /**
      * Creates a [BucketConfiguration] with a single token, which gets regenerated after the given duration.
      */
+    @JvmSynthetic
     fun ofCooldown(duration: Duration): BucketConfiguration =
         default(1, duration)
 
@@ -36,6 +37,7 @@ object Buckets {
      *
      * @see BandwidthBuilderRefillStage.refillGreedy
      */
+    @JvmSynthetic
     fun default(capacity: Long, duration: Duration): BucketConfiguration =
         default(capacity, duration.toJavaDuration())
 
@@ -51,6 +53,7 @@ object Buckets {
      *
      * @see BandwidthBuilderRefillStage.refillGreedy
      */
+    @JvmName("createDefault")
     @JvmStatic
     fun default(capacity: Long, duration: JavaDuration): BucketConfiguration {
         return BucketConfiguration.builder()
@@ -95,6 +98,7 @@ object Buckets {
      * @see BandwidthBuilderRefillStage.refillGreedy
      * @see BandwidthBuilderRefillStage.refillIntervally
      */
+    @JvmSynthetic
     fun spikeProtected(capacity: Long, duration: Duration, spikeCapacity: Long, spikeDuration: Duration): BucketConfiguration =
         spikeProtected(capacity, duration.toJavaDuration(), spikeCapacity, spikeDuration.toJavaDuration())
 
@@ -130,6 +134,7 @@ object Buckets {
      * @see BandwidthBuilderRefillStage.refillGreedy
      * @see BandwidthBuilderRefillStage.refillIntervally
      */
+    @JvmName("createSpikeProtected")
     @JvmStatic
     fun spikeProtected(capacity: Long, duration: JavaDuration, spikeCapacity: Long, spikeDuration: JavaDuration): BucketConfiguration {
         require(capacity > spikeCapacity) { "Spike capacity must be lower than capacity" }
@@ -150,11 +155,13 @@ object Buckets {
             .build()
     }
 
+    @JvmName("createCustom")
     @JvmStatic
     fun custom(vararg limits: Bandwidth): BucketConfiguration {
         return custom(limits.asList())
     }
 
+    @JvmName("createCustom")
     @JvmStatic
     fun custom(limits: List<Bandwidth>): BucketConfiguration {
         return BucketConfiguration.builder()
