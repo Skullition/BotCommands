@@ -133,10 +133,10 @@ abstract class JDAService {
      *
      * You must not change intents, cache flags nor event manager using the builder.
      *
-     * If you plan on growing your bot, prefer using [lightSharded] instead.
+     * If you plan on growing your bot, prefer using [createLightSharded] instead.
      */
     @CheckReturnValue
-    fun light(token: String): JDABuilder {
+    fun createLight(token: String): JDABuilder {
         return JDABuilder.createLight(token, intents)
             .configureBase()
             .setRestConfig(getDefaultRestConfig())
@@ -153,10 +153,10 @@ abstract class JDAService {
      *
      * You must not change intents, cache flags nor event manager using the builder.
      *
-     * If you plan on growing your bot, prefer using [defaultSharded] instead.
+     * If you plan on growing your bot, prefer using [createDefaultSharded] instead.
      */
     @CheckReturnValue
-    fun default(token: String): JDABuilder {
+    fun createDefault(token: String): JDABuilder {
         return JDABuilder.createDefault(token, intents)
             .configureBase()
             .setRestConfig(getDefaultRestConfig())
@@ -201,7 +201,7 @@ abstract class JDAService {
      * You must not change intents, cache flags nor event manager using the builder.
      */
     @CheckReturnValue
-    fun lightSharded(token: String): DefaultShardManagerBuilder {
+    fun createLightSharded(token: String): DefaultShardManagerBuilder {
         return DefaultShardManagerBuilder.createLight(token, intents)
             .configureBase()
             .setRestConfig(getDefaultRestConfig())
@@ -219,7 +219,7 @@ abstract class JDAService {
      * You must not change intents, cache flags nor event manager using the builder.
      */
     @CheckReturnValue
-    fun defaultSharded(token: String): DefaultShardManagerBuilder {
+    fun createDefaultSharded(token: String): DefaultShardManagerBuilder {
         return DefaultShardManagerBuilder.createDefault(token, intents)
             .configureBase()
             .setRestConfig(getDefaultRestConfig())
