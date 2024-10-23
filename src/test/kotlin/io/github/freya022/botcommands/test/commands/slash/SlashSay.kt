@@ -56,6 +56,9 @@ class SlashSayDsl(private val buttons: Buttons) : GlobalApplicationCommandProvid
             .await()
     }
 
+    // This is nice if you need to run your own code to declare commands
+    // For example, a loop to create commands based on an enum
+    // If you don't need any dynamic stuff, just stick to annotations
     override fun declareGlobalApplicationCommands(manager: GlobalApplicationCommandManager) {
         manager.slashCommand("say_dsl", function = ::onSlashSay) {
             description = "Sends a message in a channel"

@@ -184,7 +184,7 @@ class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
         @SlashOption(description = "What to say") content: String
     ) {
         event.reply_("Done!", ephemeral = true)
-            .deleteDelayed(event.hook, 5.seconds)
+            .deleteDelayed(5.seconds)
             .queue()
         channel.sendMessage(content)
             .addActionRow(buttons.danger(EmojiUtils.resolveJDAEmoji("wastebasket")).ephemeral {
@@ -208,7 +208,7 @@ class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
 class SlashSay(private val buttons: Buttons) : GlobalApplicationCommandProvider {
     suspend fun onSlashSay(event: GuildSlashEvent, channel: TextChannel, content: String) {
         event.reply_("Done!", ephemeral = true)
-            .deleteDelayed(event.hook, 5.seconds)
+            .deleteDelayed(5.seconds)
             .queue()
         channel.sendMessage(content)
             .addActionRow(buttons.danger(EmojiUtils.resolveJDAEmoji("wastebasket")).ephemeral {
@@ -220,6 +220,9 @@ class SlashSay(private val buttons: Buttons) : GlobalApplicationCommandProvider 
             .await()
     }
 
+    // This is nice if you need to run your own code to declare commands
+    // For example, a loop to create commands based on an enum
+    // If you don't need any dynamic stuff, just stick to annotations
     override fun declareGlobalApplicationCommands(manager: GlobalApplicationCommandManager) {
         manager.slashCommand("say", function = ::onSlashSay) {
             description = "Sends a message in a channel"
