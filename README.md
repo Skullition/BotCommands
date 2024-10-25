@@ -2,7 +2,7 @@
 [bc-maven-central-link]: https://mvnrepository.com/artifact/io.github.freya022/BotCommands/latest
 [bc-jitpack-shield]: https://img.shields.io/badge/Snapshots-JitPack-blue
 [bc-jitpack-link]: https://jitpack.io/#freya022/BotCommands
-[bc-releases]: #getting-the-library
+[bc-releases]: #installation
 [jda-version]: https://img.shields.io/badge/JDA%20Version-5.1.1+-important
 [jda-releases]: https://github.com/discord-jda/JDA/releases
 [discord-shield]: https://discord.com/api/guilds/848502702731165738/embed.png?style=shield
@@ -301,7 +301,7 @@ Don't hesitate to join [the support server](https://discord.gg/frpCcQfvTz) if yo
 If you want to contribute, make sure to base your branch on `3.X`, and create your PR from it.
 
 It would be appreciated to focus on improving the documentation,
-such as the [wiki](wiki), the library documentation, or by [creating examples](src/examples).<br>
+such as the [wiki](https://github.com/freya022/BotCommands-Wiki/), the library documentation, or by [creating examples](src/examples).<br>
 Maintainers will focus on bug reports and feature requests, which you can create issues for. 
 
 Read [the contributing guide](.github/CONTRIBUTING.md) for more details.
