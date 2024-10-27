@@ -12,12 +12,15 @@ import io.github.freya022.botcommands.api.commands.application.slash.annotations
 import io.github.freya022.botcommands.api.components.Buttons
 import io.github.freya022.botcommands.api.components.annotations.RequiresComponents
 import io.github.freya022.botcommands.api.core.utils.deleteDelayed
-import io.github.freya022.botcommands.api.utils.EmojiUtils
+import io.github.freya022.botcommands.api.core.utils.lazyJDAEmoji
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import kotlin.time.Duration.Companion.seconds
 
+private val wastebasket: UnicodeEmoji by lazyJDAEmoji("wastebasket")
+
 @Command
-@RequiresComponents
+@RequiresComponents // Disables the command if components are not enabled
 class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
     @JDASlashCommand(name = "say", description = "Sends a message in a channel")
     suspend fun onSlashSay(
@@ -25,16 +28,19 @@ class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
         @SlashOption(description = "Channel to send the message in") channel: TextChannel,
         @SlashOption(description = "What to say") content: String
     ) {
+        val deleteButton = buttons.danger(wastebasket).ephemeral {
+            bindTo { buttonEvent ->
+                buttonEvent.deferEdit().queue()
+                buttonEvent.hook.deleteOriginal().await()
+            }
+        }
+
         event.reply_("Done!", ephemeral = true)
             .deleteDelayed(5.seconds)
             .queue()
+
         channel.sendMessage(content)
-            .addActionRow(buttons.danger(EmojiUtils.resolveJDAEmoji("wastebasket")).ephemeral {
-                bindTo { buttonEvent ->
-                    buttonEvent.deferEdit().queue()
-                    buttonEvent.hook.deleteOriginal().await()
-                }
-            })
+            .addActionRow(deleteButton)
             .await()
     }
 }
@@ -43,16 +49,19 @@ class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
 @RequiresComponents // Disables the command if components are not enabled
 class SlashSayDsl(private val buttons: Buttons) : GlobalApplicationCommandProvider {
     suspend fun onSlashSay(event: GuildSlashEvent, channel: TextChannel, content: String) {
+        val deleteButton = buttons.danger(wastebasket).ephemeral {
+            bindTo { buttonEvent ->
+                buttonEvent.deferEdit().queue()
+                buttonEvent.hook.deleteOriginal().await()
+            }
+        }
+
         event.reply_("Done!", ephemeral = true)
             .deleteDelayed(5.seconds)
             .queue()
+
         channel.sendMessage(content)
-            .addActionRow(buttons.danger(EmojiUtils.resolveJDAEmoji("wastebasket")).ephemeral {
-                bindTo { buttonEvent ->
-                    buttonEvent.deferEdit().queue()
-                    buttonEvent.hook.deleteOriginal().await()
-                }
-            })
+            .addActionRow(deleteButton)
             .await()
     }
 

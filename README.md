@@ -174,6 +174,8 @@ Here is how you would create a slash command that sends a message in a specified
 <summary>Kotlin</summary>
 
 ```kt
+private val wastebasket: UnicodeEmoji by lazyJDAEmoji("wastebasket")
+
 @Command
 @RequiresComponents // Disables the command if components are not enabled
 class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
@@ -183,16 +185,19 @@ class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
         @SlashOption(description = "Channel to send the message in") channel: TextChannel,
         @SlashOption(description = "What to say") content: String
     ) {
+        val deleteButton = buttons.danger(wastebasket).ephemeral {
+            bindTo { buttonEvent ->
+                buttonEvent.deferEdit().queue()
+                buttonEvent.hook.deleteOriginal().await()
+            }
+        }
+
         event.reply_("Done!", ephemeral = true)
             .deleteDelayed(5.seconds)
             .queue()
+
         channel.sendMessage(content)
-            .addActionRow(buttons.danger(EmojiUtils.resolveJDAEmoji("wastebasket")).ephemeral {
-                bindTo { buttonEvent ->
-                    buttonEvent.deferEdit().queue()
-                    buttonEvent.hook.deleteOriginal().await()
-                }
-            })
+            .addActionRow(deleteButton)
             .await()
     }
 }
@@ -203,20 +208,25 @@ class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
 <summary>Kotlin (DSL)</summary>
 
 ```kt
+private val wastebasket: UnicodeEmoji by lazyJDAEmoji("wastebasket")
+
 @Command
 @RequiresComponents // Disables the command if components are not enabled
 class SlashSay(private val buttons: Buttons) : GlobalApplicationCommandProvider {
     suspend fun onSlashSay(event: GuildSlashEvent, channel: TextChannel, content: String) {
+        val deleteButton = buttons.danger(wastebasket).ephemeral {
+            bindTo { buttonEvent ->
+                buttonEvent.deferEdit().queue()
+                buttonEvent.hook.deleteOriginal().await()
+            }
+        }
+
         event.reply_("Done!", ephemeral = true)
             .deleteDelayed(5.seconds)
             .queue()
+
         channel.sendMessage(content)
-            .addActionRow(buttons.danger(EmojiUtils.resolveJDAEmoji("wastebasket")).ephemeral {
-                bindTo { buttonEvent ->
-                    buttonEvent.deferEdit().queue()
-                    buttonEvent.hook.deleteOriginal().await()
-                }
-            })
+            .addActionRow(deleteButton)
             .await()
     }
 
@@ -247,8 +257,13 @@ class SlashSay(private val buttons: Buttons) : GlobalApplicationCommandProvider 
 @Command
 @RequiresComponents // Disables the command if components are not enabled
 public class SlashSay extends ApplicationCommand {
+    // Little trick to get the emoji lazily, this will reduce the startup impact
+    static class Emojis {
+        private static final UnicodeEmoji WASTEBASKET = EmojiUtils.resolveJDAEmoji("wastebasket");
+    }
+
     private final Buttons buttons;
-  
+
     public SlashSay(Buttons buttons) {
         this.buttons = buttons;
     }
@@ -259,18 +274,19 @@ public class SlashSay extends ApplicationCommand {
             @SlashOption(description = "Channel to send the message in") TextChannel channel,
             @SlashOption(description = "What to say") String content
     ) {
+        final Button deleteButton = buttons.danger(Emojis.WASTEBASKET).ephemeral()
+                .bindTo(buttonEvent -> {
+                    buttonEvent.deferEdit().queue();
+                    buttonEvent.getHook().deleteOriginal().queue();
+                })
+                .build();
+
         event.reply("Done!")
                 .setEphemeral(true)
                 .delay(Duration.ofSeconds(5))
                 .flatMap(InteractionHook::deleteOriginal)
                 .queue();
 
-        final Button deleteButton = buttons.danger(EmojiUtils.resolveJDAEmoji("wastebasket")).ephemeral()
-                .bindTo(buttonEvent -> {
-                    buttonEvent.deferEdit().queue();
-                    buttonEvent.getHook().deleteOriginal().queue();
-                })
-                .build();
         channel.sendMessage(content)
                 .addActionRow(deleteButton)
                 .queue();
