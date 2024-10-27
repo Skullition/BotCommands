@@ -5,7 +5,6 @@ import io.github.freya022.botcommands.api.commands.text.BaseCommandEvent
 import io.github.freya022.botcommands.api.core.BContext
 import io.github.freya022.botcommands.api.core.utils.loggerOf
 import io.github.freya022.botcommands.api.localization.text.LocalizableTextCommand
-import io.github.freya022.botcommands.api.utils.EmojiUtils
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission.MESSAGE_ADD_REACTION
@@ -13,6 +12,7 @@ import net.dv8tion.jda.api.Permission.MESSAGE_HISTORY
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.RestAction
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
@@ -23,8 +23,8 @@ import javax.annotation.CheckReturnValue
 
 private val logger = KotlinLogging.loggerOf<BaseCommandEvent>()
 
-private val SUCCESS by lazy { EmojiUtils.resolveJDAEmoji("white_check_mark") }
-private val ERROR by lazy { EmojiUtils.resolveJDAEmoji("x") }
+private val SUCCESS = Emoji.fromUnicode("✅") // white_check_mark
+private val ERROR = Emoji.fromUnicode("❌") // x
 
 internal open class BaseCommandEventImpl(
     private val context: BContext,

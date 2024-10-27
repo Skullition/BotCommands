@@ -6,7 +6,6 @@ import io.github.freya022.botcommands.api.commands.text.annotations.RequiresText
 import io.github.freya022.botcommands.api.core.service.annotations.InjectedService
 import io.github.freya022.botcommands.api.core.utils.toImmutableList
 import io.github.freya022.botcommands.api.localization.DefaultMessages
-import io.github.freya022.botcommands.api.utils.EmojiUtils
 import io.github.freya022.botcommands.internal.core.config.ConfigDSL
 import io.github.freya022.botcommands.internal.core.config.ConfigurationValue
 import net.dv8tion.jda.api.entities.emoji.Emoji
@@ -107,7 +106,7 @@ class BTextConfigBuilder internal constructor() : BTextConfig {
         set(value) {
             dmClosedEmojiSupplier = { value }
         }
-    var dmClosedEmojiSupplier: () -> Emoji = { EmojiUtils.resolveJDAEmoji("mailbox_closed") }
+    var dmClosedEmojiSupplier: () -> Emoji = { Emoji.fromUnicode("\uD83D\uDCEA") } // mailbox_closed
 
     @JvmSynthetic
     internal fun build() = object : BTextConfig {
