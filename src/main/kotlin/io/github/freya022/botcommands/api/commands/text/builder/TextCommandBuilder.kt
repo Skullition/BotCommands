@@ -41,7 +41,11 @@ interface TextCommandBuilder : CommandBuilder {
     var description: String?
 
     /**
-     * Marks this text command as only usable by the bot owners.
+     * Marks this text command as only usable by the [bot owners][BotOwners].
+     *
+     * Owner-only commands are hidden in the built-in help content,
+     * but will still be responded to if a user tries to use it,
+     * though they will be rejected.
      *
      * @see RequireOwner
      */
