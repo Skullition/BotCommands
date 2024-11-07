@@ -1,5 +1,6 @@
 package io.github.freya022.botcommands.api.parameters
 
+import io.github.freya022.botcommands.api.core.reflect.KotlinTypeToken
 import io.github.freya022.botcommands.api.core.service.annotations.ResolverFactory
 import io.github.freya022.botcommands.api.core.utils.shortQualifiedName
 import io.github.freya022.botcommands.api.parameters.resolvers.IParameterResolver
@@ -11,6 +12,7 @@ import kotlin.reflect.jvm.javaType
 
 /**
  * Specialization of [ParameterResolverFactory] for a specific [KType].
+ * Java users can supply a [KotlinTypeToken] instead.
  *
  * Your implementation needs to be annotated with [@ResolverFactory][ResolverFactory].
  *
@@ -31,6 +33,7 @@ abstract class TypedParameterResolverFactory<out T : IParameterResolver<T>>(
 
     constructor(resolverType: KClass<out T>, type: KClass<*>) : this(resolverType, type.starProjectedType)
     constructor(resolverType: Class<out T>, type: Class<*>) : this(resolverType.kotlin, type.kotlin.starProjectedType)
+    constructor(resolverType: Class<out T>, typeToken: KotlinTypeToken<*>) : this(resolverType.kotlin, typeToken.type)
 
     init {
         require(!type.isMarkedNullable) {
