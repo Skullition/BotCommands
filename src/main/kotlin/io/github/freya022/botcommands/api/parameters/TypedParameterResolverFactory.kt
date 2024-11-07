@@ -1,7 +1,7 @@
 package io.github.freya022.botcommands.api.parameters
 
 import io.github.freya022.botcommands.api.core.service.annotations.ResolverFactory
-import io.github.freya022.botcommands.api.core.utils.simpleNestedName
+import io.github.freya022.botcommands.api.core.utils.shortQualifiedName
 import io.github.freya022.botcommands.api.parameters.resolvers.IParameterResolver
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -27,7 +27,7 @@ abstract class TypedParameterResolverFactory<out T : IParameterResolver<T>>(
     resolverType: KClass<out T>,
     val type: KType
 ) : ParameterResolverFactory<T>(resolverType) {
-    override val supportedTypesStr: List<String> = listOf(type.simpleNestedName)
+    override val supportedTypesStr: List<String> = listOf(type.shortQualifiedName)
 
     constructor(resolverType: KClass<out T>, type: KClass<*>) : this(resolverType, type.starProjectedType)
     constructor(resolverType: Class<out T>, type: Class<*>) : this(resolverType.kotlin, type.kotlin.starProjectedType)

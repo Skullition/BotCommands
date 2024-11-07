@@ -73,6 +73,19 @@ val KType.simpleNestedName: String
         if (isMarkedNullable) append("?")
     }
 
+val KType.shortQualifiedName: String
+    get() = buildString {
+        append(jvmErasure.shortQualifiedName)
+        if (arguments.isNotEmpty()) {
+            append("<")
+            append(arguments.joinToString {
+                it.type?.shortQualifiedName ?: "*"
+            })
+            append(">")
+        }
+        if (isMarkedNullable) append("?")
+    }
+
 val Class<*>.shortQualifiedName
     get() = packageName.split('.').joinToString(".") { it.first().toString() } + "." + simpleNestedName
 

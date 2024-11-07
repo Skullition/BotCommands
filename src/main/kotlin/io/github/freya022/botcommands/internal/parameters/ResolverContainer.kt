@@ -76,7 +76,7 @@ internal class ResolverContainer internal constructor(
                         .sortedBy { it.resolverType.simpleNestedName }
 
                     appendLine("${interfaceClass.simpleNestedName} (${factories.size}):")
-                    append(factories.joinAsList(linePrefix = "\t-") { "${it.resolverType.simpleNestedName} ; priority ${it.priority} (${it.supportedTypesStr.joinToString()})" })
+                    append(factories.joinAsList(linePrefix = "\t-") { "${it.resolverType.shortQualifiedName} ; priority ${it.priority} (${it.supportedTypesStr.joinToString()})" })
                 }
             }
 
@@ -126,7 +126,7 @@ internal class ResolverContainer internal constructor(
         val factory = getResolverFactoryOrNull(resolverType, request)
         if (factory == null) {
             val wrapper = request.parameter
-            wrapper.throwUser("No ${resolverType.simpleNestedName} found for parameter '${wrapper.name}: ${wrapper.type.simpleNestedName}'")
+            wrapper.throwUser("No ${resolverType.simpleNestedName} found for parameter '${wrapper.name}: ${wrapper.type.shortQualifiedName}'")
         }
 
         return factory.get(request)
