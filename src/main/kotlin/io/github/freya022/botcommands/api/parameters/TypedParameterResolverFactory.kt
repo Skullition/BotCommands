@@ -7,6 +7,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.withNullability
+import kotlin.reflect.jvm.javaType
 
 /**
  * Specialization of [ParameterResolverFactory] for a specific [KType].
@@ -39,6 +40,14 @@ abstract class TypedParameterResolverFactory<out T : IParameterResolver<T>>(
 
     override fun isResolvable(request: ResolverRequest): Boolean {
         val requestedType = request.parameter.type
-        return this.type == requestedType || this.type == requestedType.withNullability(false)
+        return this.type == requestedType
+                // Resolver of type T can resolve parameters of type T?
+                || this.type == requestedType.withNullability(false)
+                // Improves Java interoperability
+                // Prevents issues when the resolver is for a k.c.List and Java parameter is a j.u.List
+                // KType#javaType may have a few unsupported cases (it uses KType#stdlibJavaType),
+                // while I believe it won't affect anyone,
+                // it's still used as a last resort, just in case
+                || this.type.javaType == requestedType.javaType
     }
 }
