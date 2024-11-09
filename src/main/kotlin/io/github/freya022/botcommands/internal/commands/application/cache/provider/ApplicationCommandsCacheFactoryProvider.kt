@@ -31,7 +31,8 @@ internal open class ApplicationCommandsCacheFactoryProvider {
     @Bean
     @BService
     internal open fun applicationCommandsCacheFactory(jda: JDA, applicationConfig: BApplicationConfig, database: InternalDatabase?): ApplicationCommandsCacheFactory {
-        val cacheConfig = applicationConfig.cache ?: return NullApplicationCommandsCacheFactory
+        val cacheConfig = applicationConfig.cache
+            ?: return NullApplicationCommandsCacheFactory // Logged in [[BApplicationConfigBuilder#build]]
 
         when (cacheConfig) {
             is FileApplicationCommandsCacheConfig -> {
@@ -46,6 +47,7 @@ internal open class ApplicationCommandsCacheFactoryProvider {
                     return MemoryApplicationCommandsCacheFactory(cacheConfig)
                 }
 
+                logger.debug { "Using file-based application commands cache @ ${dataDirectory.pathString}" }
                 return FileApplicationCommandsCacheFactory(cacheConfig, jda.selfUser.applicationIdLong)
             }
             is DatabaseApplicationCommandsCacheConfig -> {
@@ -54,6 +56,7 @@ internal open class ApplicationCommandsCacheFactoryProvider {
                     return MemoryApplicationCommandsCacheFactory(cacheConfig)
                 }
 
+                logger.debug { "Using database-based application commands cache" }
                 return DatabaseApplicationCommandsCacheFactory(cacheConfig, database, jda.selfUser.applicationIdLong)
             }
             else -> throwInternal("Unsupported cache config: $cacheConfig")
