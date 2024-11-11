@@ -91,6 +91,10 @@ class PriorityGlobalRestRateLimiter(
     override fun enqueue(task: RestRateLimiter.Work): Unit = lock.withLock {
         if (isStopped) return
 
+        // interactions are not subject to *global* rate limits, queue immediately
+        if (task.route.baseRoute.isInteractionBucket)
+            return delegate.enqueue(task)
+
         queue.offer(PriorityWork(task))
         bucket.consume(1, rateLimitScheduler).thenApply {
             val priorityTask = pollWorkQueue(submittedTask = task) ?: return@thenApply
