@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -81,7 +80,7 @@ class PriorityGlobalRestRateLimiter(
         .build()
         .asScheduler()
     private val rateLimitScheduler = Executors.newSingleThreadScheduledExecutor {
-        thread(name = "Global RateLimiter", start = false) {}
+        Thread(it, "Global RateLimiter")
     }
 
     private val lock = ReentrantLock()
