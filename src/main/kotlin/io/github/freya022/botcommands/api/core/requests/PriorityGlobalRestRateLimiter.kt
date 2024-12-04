@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.requests.Route
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.time.Duration.Companion.seconds
@@ -52,8 +53,15 @@ class PriorityGlobalRestRateLimiter(
     private val delegate: RestRateLimiter
 ) : RestRateLimiter {
     private class PriorityWork(val task: RestRateLimiter.Work) : Comparable<PriorityWork> {
+        private val id: Long = _id.getAndIncrement()
+
         override fun compareTo(other: PriorityWork): Int {
-            return task.priority.compareTo(other.task.priority)
+            val relativePriority = task.priority.compareTo(other.task.priority)
+            // If they are both of the same priority, maintain insertion order
+            if (relativePriority == 0) {
+                return id.compareTo(other.id)
+            }
+            return relativePriority
         }
 
         // Natural order
@@ -66,6 +74,10 @@ class PriorityGlobalRestRateLimiter(
             Route.Interactions.GET_GUILD_COMMANDS -> 3
             Route.Interactions.UPDATE_GUILD_COMMANDS -> 4
             else -> 0
+        }
+
+        private companion object {
+            private val _id = AtomicLong(0)
         }
     }
 
