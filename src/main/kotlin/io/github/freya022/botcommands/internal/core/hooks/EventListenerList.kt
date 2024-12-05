@@ -1,6 +1,6 @@
 package io.github.freya022.botcommands.internal.core.hooks
 
-import io.github.freya022.botcommands.api.core.annotations.BEventListener
+import io.github.freya022.botcommands.api.core.annotations.BEventListener.RunMode
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -9,9 +9,9 @@ internal class EventListenerList {
 
     // Only protect modification operations, traversal is fine
     private val lock = ReentrantLock()
-    private var map: Map<BEventListener.RunMode, MutableList<EventHandlerFunction>> = emptyMap()
+    private var map: Map<RunMode, MutableList<EventHandlerFunction>> = emptyMap()
 
-    operator fun get(mode: BEventListener.RunMode): List<EventHandlerFunction>? = map[mode]
+    operator fun get(mode: RunMode): List<EventHandlerFunction>? = map[mode]
 
     inline fun <R> map(block: (EventHandlerFunction) -> R): List<R> = map.values.flatten().map(block)
 
@@ -35,11 +35,14 @@ internal class EventListenerList {
             removedAny = removedAny || newHandlers.removeAll(handlers)
         }
 
+        // Remove entries containing an empty list
+        RunMode.entries.forEach { mode -> newMap.remove(mode, emptyList()) }
+
         this.map = newMap
         return removedAny
     }
 
-    private fun newMap() = EnumMap<BEventListener.RunMode, MutableList<EventHandlerFunction>>(BEventListener.RunMode::class.java).apply {
+    private fun newMap() = EnumMap<RunMode, MutableList<EventHandlerFunction>>(RunMode::class.java).apply {
         map.forEach { (mode, handlers) ->
             put(mode, handlers.toMutableList() /* copy */)
         }
