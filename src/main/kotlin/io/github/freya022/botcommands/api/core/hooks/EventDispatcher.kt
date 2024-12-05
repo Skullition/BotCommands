@@ -49,7 +49,7 @@ abstract class EventDispatcher internal constructor() {
      * [ASYNC][BEventListener.RunMode.ASYNC] listeners will then be launched on [BCoroutineScopesConfig.eventDispatcherScope],
      * without blocking.
      *
-     * Finally, [INHERIT][BEventListener.RunMode.INHERIT] listeners will be fired on
+     * Finally, [SHARED][BEventListener.RunMode.SHARED] listeners will be fired on
      * the scope of the [CoroutineEventManager] without blocking,
      * which can be configured with [ICoroutineEventManagerSupplier].
      *
@@ -70,7 +70,7 @@ abstract class EventDispatcher internal constructor() {
      * [ASYNC][BEventListener.RunMode.ASYNC] listeners will then be launched on [BCoroutineScopesConfig.eventDispatcherScope],
      * without blocking.
      *
-     * Finally, [INHERIT][BEventListener.RunMode.INHERIT] listeners will be fired on
+     * Finally, [SHARED][BEventListener.RunMode.SHARED] listeners will be fired on
      * the scope of the [CoroutineEventManager] without blocking,
      * which can be configured with [ICoroutineEventManagerSupplier].
      *

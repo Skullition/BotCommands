@@ -30,12 +30,12 @@ annotation class BEventListener(
      *
      * @see RunMode
      */
-    val mode: RunMode = RunMode.INHERIT,
+    val mode: RunMode = RunMode.SHARED,
     /**
      * The priority for this event listener
      *
      * **Note:** The run order of listeners is based on the [mode]'s [order][RunMode.order] and then the priority,
-     * for example, a listener with the [INHERIT][RunMode.INHERIT] mode and maximum priority,
+     * for example, a listener with the [SHARED][RunMode.SHARED] mode and maximum priority,
      * will still run *after* listeners with the [BLOCKING][RunMode.BLOCKING] mode.
      *
      * In other words, blocking listeners are first, then async listeners, and finally inherited listeners.
@@ -74,7 +74,7 @@ annotation class BEventListener(
          * Note that this is ignored if the event was dispatched using [EventDispatcher.dispatchEventAsync],
          * instead running all event listeners as [ASYNC].
          */
-        INHERIT(order = 3),
+        SHARED(order = 3),
 
         /**
          * Runs this listener on the same thread as they were fired in, based on the [priority].

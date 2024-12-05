@@ -45,7 +45,7 @@ internal class EventDispatcherImpl internal constructor(
             }
         }
 
-        handlers[RunMode.INHERIT]?.let { eventHandlers ->
+        handlers[RunMode.SHARED]?.let { eventHandlers ->
             // Stick to what JDA-KTX does, 1 coroutine per event for all listeners
             inheritedCoroutineScope.launch {
                 eventHandlers.forEach { eventHandler ->
@@ -76,7 +76,7 @@ internal class EventDispatcherImpl internal constructor(
         }
 
         // Stick to what JDA-KTX does, 1 coroutine per event for all listeners
-        handlers[RunMode.INHERIT]?.forEach { eventHandler ->
+        handlers[RunMode.SHARED]?.forEach { eventHandler ->
             runEventHandler(eventHandler, event)
         }
     }
