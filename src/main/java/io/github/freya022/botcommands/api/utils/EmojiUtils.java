@@ -117,4 +117,25 @@ public class EmojiUtils {
         if (unicode == null) return null;
         return Emoji.fromUnicode(unicode);
     }
+
+    /**
+     * Converts the provided {@link net.fellbaum.jemoji.Emoji Emoji} into a JDA {@link UnicodeEmoji}.
+     *
+     * <p>I highly recommend putting your emojis in a class that is loaded only when necessary,
+     * avoiding any unnecessary startup delay.
+     * You can do so by using a static inner class, for example:
+     *
+     * <pre><code>
+     * static class Emojis {
+     *     private static final UnicodeEmoji WASTEBASKET = EmojiUtils.asUnicodeEmoji(net.fellbaum.jemoji.Emojis.WASTEBASKET);
+     * }
+     * </code></pre>
+     *
+     * @param emoji
+     * @return
+     */
+    @NotNull
+    public static UnicodeEmoji asUnicodeEmoji(@NotNull net.fellbaum.jemoji.Emoji emoji) {
+        return Emoji.fromUnicode(emoji.getEmoji());
+    }
 }

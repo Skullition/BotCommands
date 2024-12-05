@@ -12,12 +12,13 @@ import io.github.freya022.botcommands.api.commands.application.slash.annotations
 import io.github.freya022.botcommands.api.components.Buttons
 import io.github.freya022.botcommands.api.components.annotations.RequiresComponents
 import io.github.freya022.botcommands.api.core.utils.deleteDelayed
-import io.github.freya022.botcommands.api.core.utils.lazyJDAEmoji
+import io.github.freya022.botcommands.api.core.utils.lazyUnicodeEmoji
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
+import net.fellbaum.jemoji.Emojis
 import kotlin.time.Duration.Companion.seconds
 
-private val wastebasket: UnicodeEmoji by lazyJDAEmoji("wastebasket")
+private val wastebasket: UnicodeEmoji by lazyUnicodeEmoji { Emojis.WASTEBASKET }
 
 @Command
 @RequiresComponents // Disables the command if components are not enabled

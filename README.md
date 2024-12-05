@@ -174,7 +174,7 @@ Here is how you would create a slash command that sends a message in a specified
 <summary>Kotlin</summary>
 
 ```kt
-private val wastebasket: UnicodeEmoji by lazyJDAEmoji("wastebasket")
+private val wastebasket: UnicodeEmoji by lazyUnicodeEmoji { Emojis.WASTEBASKET }
 
 @Command
 @RequiresComponents // Disables the command if components are not enabled
@@ -208,7 +208,7 @@ class SlashSay(private val buttons: Buttons) : ApplicationCommand() {
 <summary>Kotlin (DSL)</summary>
 
 ```kt
-private val wastebasket: UnicodeEmoji by lazyJDAEmoji("wastebasket")
+private val wastebasket: UnicodeEmoji by lazyUnicodeEmoji { Emojis.WASTEBASKET }
 
 @Command
 @RequiresComponents // Disables the command if components are not enabled
@@ -259,7 +259,7 @@ class SlashSay(private val buttons: Buttons) : GlobalApplicationCommandProvider 
 public class SlashSay extends ApplicationCommand {
     // Little trick to get the emoji lazily, this will reduce the startup impact
     static class Emojis {
-        private static final UnicodeEmoji WASTEBASKET = EmojiUtils.resolveJDAEmoji("wastebasket");
+        private static final UnicodeEmoji WASTEBASKET = EmojiUtils.asUnicodeEmoji(net.fellbaum.jemoji.Emojis.WASTEBASKET);
     }
 
     private final Buttons buttons;

@@ -1,34 +1,20 @@
 package io.github.freya022.botcommands.api.core.utils
 
-import io.github.freya022.botcommands.api.utils.EmojiUtils
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
+import net.fellbaum.jemoji.Emoji as JEmoji
 
 /**
- * Lazily fetches an [UnicodeEmoji] from the provided emoji alias, Unicode characters, or Markdown.
+ * Converts this JEmoji [Emoji][JEmoji] into a JDA [UnicodeEmoji].
  *
- * ### Example
- * ```kt
- * // Emoji alias
- * private val smiley by lazyJDAEmoji(":smiley:")
- * // Unicode emoji
- * private val smiley by lazyJDAEmoji("😃")
- * ```
+ * @see lazyUnicodeEmoji
  */
-fun lazyJDAEmoji(input: String): Lazy<UnicodeEmoji> =
-    lazy { EmojiUtils.resolveJDAEmoji(input) }
+fun JEmoji.asUnicodeEmoji(): UnicodeEmoji = Emoji.fromUnicode(emoji)
 
 /**
- * Lazily fetches the Unicode from the provided emoji alias.
+ * Lazily converts the supplied [Emoji][JEmoji] into a JDA [UnicodeEmoji].
  *
- * If the input is already a Unicode emoji, it will be returned.
- *
- * ### Example
- * ```kt
- * // Emoji alias
- * private val smiley by lazyEmoji("smiley")
- * // Unicode emoji
- * private val smiley by lazyEmoji("😃")
- * ```
+ * This is useful to load JEmoji only when it's necessary, avoiding any startup delay.
  */
-fun lazyEmoji(input: String): Lazy<String> =
-    lazy { EmojiUtils.resolveEmoji(input) }
+fun lazyUnicodeEmoji(supplier: () -> JEmoji): Lazy<UnicodeEmoji> =
+    lazy { supplier().asUnicodeEmoji() }
