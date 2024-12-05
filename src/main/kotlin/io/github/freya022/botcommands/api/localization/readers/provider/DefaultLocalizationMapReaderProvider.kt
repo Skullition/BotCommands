@@ -1,6 +1,7 @@
 package io.github.freya022.botcommands.api.localization.readers.provider
 
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.freya022.botcommands.api.core.BContext
 import io.github.freya022.botcommands.api.core.service.annotations.BService
@@ -17,7 +18,8 @@ internal open class DefaultLocalizationMapReaderProvider {
     open fun defaultJsonLocalizationMapReader(context: BContext): LocalizationMapReader {
         return JacksonLocalizationMapReader.createWithDefaultTemplate(
             context,
-            ObjectMapper(JsonFactory()),
+            ObjectMapper(JsonFactory())
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS.mappedFeature()),
             folderName = "bc_localization",
             extensions = listOf("json"),
         )
