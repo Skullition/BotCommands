@@ -2,8 +2,10 @@ package io.github.freya022.botcommands.internal.core
 
 import io.github.freya022.botcommands.api.core.BContext
 import io.github.freya022.botcommands.api.core.annotations.BEventListener
+import io.github.freya022.botcommands.api.core.annotations.BEventListener.RunMode
 import io.github.freya022.botcommands.api.core.events.FirstGuildReadyEvent
 import io.github.freya022.botcommands.api.core.events.InjectedJDAEvent
+import io.github.freya022.botcommands.api.core.events.PreFirstGatewayConnectEvent
 import io.github.freya022.botcommands.api.core.service.annotations.BService
 import io.github.freya022.botcommands.api.core.service.putServiceAs
 import net.dv8tion.jda.api.JDA
@@ -19,7 +21,8 @@ internal class ReadyListener {
     private var connected = false
     private var ready = false
 
-    @BEventListener(priority = Int.MAX_VALUE)
+    // Blocking so [[PreFirstGatewayConnectEvent]] can block the JDA thread and do their things
+    @BEventListener(priority = Int.MAX_VALUE, mode = RunMode.BLOCKING)
     internal suspend fun onConnectEvent(event: StatusChangeEvent, context: BContext) {
         // At this point, JDA should be usable
         if (!connected && event.newStatus == JDA.Status.CONNECTING_TO_WEBSOCKET) {
@@ -32,6 +35,8 @@ internal class ReadyListener {
             event.jda.shardManager?.let { context.serviceContainer.putServiceAs<ShardManager>(it) }
 
             context.eventDispatcher.dispatchEvent(InjectedJDAEvent(context, event.jda))
+            // Added so it makes a bit more sense for the user
+            context.eventDispatcher.dispatchEvent(PreFirstGatewayConnectEvent(context, event.jda))
         }
     }
 
