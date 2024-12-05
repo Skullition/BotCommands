@@ -34,9 +34,11 @@ annotation class BEventListener(
     /**
      * The priority for this event listener
      *
-     * **Note:** While the priority is used when dispatching the events, if another handler is async then it will not be awaited before this one is fired.
+     * **Note:** The run order of listeners is based on the [mode]'s [order][RunMode.order] and then the priority,
+     * for example, a listener with the [INHERIT][RunMode.INHERIT] mode and maximum priority,
+     * will still run *after* listeners with the [BLOCKING][RunMode.BLOCKING] mode.
      *
-     * This means that this handler might start running before the previous (async) one has finished running.
+     * In other words, blocking listeners are first, then async listeners, and finally inherited listeners.
      */
     val priority: Int = 0, //Default priority
     /**
