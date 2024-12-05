@@ -9,8 +9,8 @@ import io.github.freya022.botcommands.api.components.options.ComponentOption
 import io.github.freya022.botcommands.api.core.BContext
 import io.github.freya022.botcommands.api.core.service.getService
 import io.github.freya022.botcommands.api.core.traceNull
-import io.github.freya022.botcommands.api.core.utils.retrieveMemberOrNull
-import io.github.freya022.botcommands.api.core.utils.retrieveUserOrNull
+import io.github.freya022.botcommands.api.core.utils.retrieveMemberByIdOrNull
+import io.github.freya022.botcommands.api.core.utils.retrieveUserByIdOrNull
 import io.github.freya022.botcommands.api.localization.DefaultMessagesFactory
 import io.github.freya022.botcommands.api.parameters.ClassParameterResolver
 import io.github.freya022.botcommands.api.parameters.resolvers.ComponentParameterResolver
@@ -86,14 +86,14 @@ internal sealed class AbstractUserSnowflakeResolver<T : AbstractUserSnowflakeRes
         val member = when {
             guild != null -> {
                 message.mentions.members.findEntity(userId)
-                    ?: guild.retrieveMemberOrNull(userId)
+                    ?: guild.retrieveMemberByIdOrNull(userId)
             }
             else -> null
         }
 
         val user = member?.user
             ?: message.mentions.users.findEntity(userId)
-            ?: message.jda.retrieveUserOrNull(userId)
+            ?: message.jda.retrieveUserByIdOrNull(userId)
 
         if (user == null) {
             return logger.traceNull { "Could not resolve user with ID $userId in '${guild?.name}' (${guild?.id})" }

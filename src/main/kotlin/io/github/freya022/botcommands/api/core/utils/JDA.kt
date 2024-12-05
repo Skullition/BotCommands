@@ -8,10 +8,13 @@ import io.github.freya022.botcommands.internal.utils.takeIfFinite
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Guild.Ban
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.entities.sticker.StickerSnowflake
+import net.dv8tion.jda.api.entities.sticker.StickerUnion
 import net.dv8tion.jda.api.exceptions.ErrorHandler
 import net.dv8tion.jda.api.interactions.InteractionHook
 import net.dv8tion.jda.api.interactions.callbacks.IMessageEditCallback
@@ -39,13 +42,191 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
-suspend fun Guild.retrieveMemberOrNull(userId: Long): Member? = retrieveMemberOrNull(UserSnowflake.fromId(userId))
-suspend fun Guild.retrieveMemberOrNull(user: UserSnowflake): Member? = runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_MEMBER, ErrorResponse.UNKNOWN_USER) {
-    retrieveMember(user).await()
+/**
+ * Retrieves a [Member] with the provided ID.
+ *
+ * Throws the same exceptions as [Guild.retrieveMemberById],
+ * minus [ErrorResponse.UNKNOWN_MEMBER] and [ErrorResponse.UNKNOWN_USER].
+ *
+ * @param userId   The ID of the member to retrieve
+ * @param useCache Whether this should rely on the cache, set to `false` to always make a request.
+ *
+ * @see Guild.retrieveMemberById
+ */
+suspend fun Guild.retrieveMemberByIdOrNull(userId: String, useCache: Boolean = true): Member? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_MEMBER, ErrorResponse.UNKNOWN_USER) {
+        retrieveMemberById(userId).useCache(useCache).await()
+    }
 }
 
-suspend fun JDA.retrieveUserOrNull(userId: Long): User? = runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_USER) {
-    retrieveUserById(userId).await()
+/**
+ * Retrieves a [Member] with the provided ID.
+ *
+ * Throws the same exceptions as [Guild.retrieveMemberById],
+ * minus [ErrorResponse.UNKNOWN_MEMBER] and [ErrorResponse.UNKNOWN_USER].
+ *
+ * @param userId   The ID of the member to retrieve
+ * @param useCache Whether this should rely on the cache, set to `false` to always make a request.
+ *
+ * @see Guild.retrieveMemberById
+ */
+suspend fun Guild.retrieveMemberByIdOrNull(userId: Long, useCache: Boolean = true): Member? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_MEMBER, ErrorResponse.UNKNOWN_USER) {
+        retrieveMemberById(userId).useCache(useCache).await()
+    }
+}
+
+@Deprecated("Replaced with retrieveMemberByIdOrNull", replaceWith = ReplaceWith("retrieveMemberByIdOrNull(userId)"))
+suspend fun Guild.retrieveMemberOrNull(userId: Long): Member? = retrieveMemberOrNull(UserSnowflake.fromId(userId))
+
+/**
+ * Retrieves a [Member] with the provided [User].
+ *
+ * Throws the same exceptions as [Guild.retrieveMember],
+ * minus [ErrorResponse.UNKNOWN_MEMBER] and [ErrorResponse.UNKNOWN_USER].
+ *
+ * @param user     The user to retrieve the member for
+ * @param useCache Whether this should rely on the cache, set to `false` to always make a request.
+ *
+ * @see Guild.retrieveMember
+ */
+suspend fun Guild.retrieveMemberOrNull(user: UserSnowflake, useCache: Boolean = true): Member? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_MEMBER, ErrorResponse.UNKNOWN_USER) {
+        retrieveMember(user).useCache(useCache).await()
+    }
+}
+
+/**
+ * Retrieves a [Ban] of the provided [UserSnowflake], or `null` if the user is not banned.
+ *
+ * Throws the same exceptions as [Guild.retrieveBan], minus [ErrorResponse.UNKNOWN_BAN].
+ *
+ * @see Guild.retrieveBan
+ */
+suspend fun Guild.retrieveBanOrNull(user: UserSnowflake): Ban? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_BAN) {
+        retrieveBan(user).await()
+    }
+}
+
+/**
+ * Retrieves the Vanity Invite meta-data for this guild,
+ * or `null` if the vanity code is `null` or when a `INVITE_CODE_INVALID` error response was caught.
+ *
+ * Throws the same exceptions as [Guild.retrieveVanityInvite], minus [ErrorResponse.INVITE_CODE_INVALID].
+ *
+ * @see Guild.retrieveVanityInvite
+ */
+suspend fun Guild.retrieveVanityInviteOrNull(): VanityInvite? {
+    if (vanityCode == null) return null
+
+    return runIgnoringResponseOrNull(ErrorResponse.INVITE_CODE_INVALID) {
+        retrieveVanityInvite().await()
+    }
+}
+
+@Deprecated("Replaced by retrieveUserByIdOrNull", replaceWith = ReplaceWith("retrieveUserByIdOrNull(userId)"))
+suspend fun JDA.retrieveUserOrNull(userId: Long, useCache: Boolean = true): User? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_USER) {
+        retrieveUserById(userId).useCache(useCache).await()
+    }
+}
+
+/**
+ * Retrieves a [User] with the provided ID.
+ *
+ * Throws the same exceptions as [JDA.retrieveUserById], minus [ErrorResponse.UNKNOWN_USER].
+ *
+ * @param userId   ID of the user to retrieve
+ * @param useCache Whether this should rely on the cache, set to `false` to always make a request.
+ *
+ * @see JDA.retrieveUserById
+ */
+suspend fun JDA.retrieveUserByIdOrNull(userId: String, useCache: Boolean = true): User? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_USER) {
+        retrieveUserById(userId).useCache(useCache).await()
+    }
+}
+
+/**
+ * Retrieves a [User] with the provided ID.
+ *
+ * Throws the same exceptions as [JDA.retrieveUserById], minus [ErrorResponse.UNKNOWN_USER].
+ *
+ * @param userId   ID of the user to retrieve
+ * @param useCache Whether this should rely on the cache, set to `false` to always make a request.
+ *
+ * @see JDA.retrieveUserById
+ */
+suspend fun JDA.retrieveUserByIdOrNull(userId: Long, useCache: Boolean = true): User? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_USER) {
+        retrieveUserById(userId).useCache(useCache).await()
+    }
+}
+
+/**
+ * Retrieves a sticker from the provided ID, see [JDA.retrieveSticker] for more details.
+ *
+ * Throws the same exceptions as [JDA.retrieveSticker], minus [ErrorResponse.UNKNOWN_STICKER].
+ *
+ * @see JDA.retrieveSticker
+ */
+suspend fun JDA.retrieveStickerOrNull(sticker: StickerSnowflake): StickerUnion? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_STICKER) {
+        retrieveSticker(sticker).await()
+    }
+}
+
+/**
+ * Retrieves an [Entitlement] from the provided ID, see [JDA.retrieveEntitlementById] for more details.
+ *
+ * Throws the same exceptions as [JDA.retrieveEntitlementById], minus [ErrorResponse.UNKNOWN_ENTITLEMENT].
+ *
+ * @see JDA.retrieveEntitlementById
+ */
+suspend fun JDA.retrieveEntitlementByIdOrNull(entitlementId: String): Entitlement? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_ENTITLEMENT) {
+        retrieveEntitlementById(entitlementId).await()
+    }
+}
+
+/**
+ * Retrieves an [Entitlement] from the provided ID, see [JDA.retrieveEntitlementById] for more details.
+ *
+ * Throws the same exceptions as [JDA.retrieveEntitlementById], minus [ErrorResponse.UNKNOWN_ENTITLEMENT].
+ *
+ * @see JDA.retrieveEntitlementById
+ */
+suspend fun JDA.retrieveEntitlementByIdOrNull(entitlementId: Long): Entitlement? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_ENTITLEMENT) {
+        retrieveEntitlementById(entitlementId).await()
+    }
+}
+
+/**
+ * Retrieves a [Webhook] from the provided ID, see [JDA.retrieveWebhookById] for more details.
+ *
+ * Throws the same exceptions as [JDA.retrieveWebhookById], minus [ErrorResponse.UNKNOWN_WEBHOOK].
+ *
+ * @see JDA.retrieveWebhookById
+ */
+suspend fun JDA.retrieveWebhookByIdOrNull(webhookId: String): Webhook? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_WEBHOOK) {
+        retrieveWebhookById(webhookId).await()
+    }
+}
+
+/**
+ * Retrieves a [Webhook] from the provided ID, see [JDA.retrieveWebhookById] for more details.
+ *
+ * Throws the same exceptions as [JDA.retrieveWebhookById], minus [ErrorResponse.UNKNOWN_WEBHOOK].
+ *
+ * @see JDA.retrieveWebhookById
+ */
+suspend fun JDA.retrieveWebhookByIdOrNull(webhookId: Long): Webhook? {
+    return runIgnoringResponseOrNull(ErrorResponse.UNKNOWN_WEBHOOK) {
+        retrieveWebhookById(webhookId).await()
+    }
 }
 
 /**
