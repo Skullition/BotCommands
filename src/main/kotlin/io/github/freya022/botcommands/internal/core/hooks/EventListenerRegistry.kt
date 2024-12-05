@@ -1,16 +1,14 @@
-package io.github.freya022.botcommands.api.core
+package io.github.freya022.botcommands.internal.core.hooks
 
 import dev.minn.jda.ktx.events.CoroutineEventManager
+import io.github.freya022.botcommands.api.core.JDAService
 import io.github.freya022.botcommands.api.core.annotations.BEventListener
+import io.github.freya022.botcommands.api.core.annotations.BEventListener.RunMode
 import io.github.freya022.botcommands.api.core.config.BConfig
-import io.github.freya022.botcommands.api.core.config.BCoroutineScopesConfig
 import io.github.freya022.botcommands.api.core.events.BGenericEvent
-import io.github.freya022.botcommands.api.core.events.InitializationEvent
 import io.github.freya022.botcommands.api.core.service.ServiceContainer
-import io.github.freya022.botcommands.api.core.service.annotations.BService
 import io.github.freya022.botcommands.api.core.utils.findAnnotationRecursive
 import io.github.freya022.botcommands.api.core.utils.isSubclassOf
-import io.github.freya022.botcommands.api.core.utils.simpleNestedName
 import io.github.freya022.botcommands.internal.core.*
 import io.github.freya022.botcommands.internal.core.exceptions.InternalException
 import io.github.freya022.botcommands.internal.core.service.FunctionAnnotationsMap
@@ -19,68 +17,32 @@ import io.github.freya022.botcommands.internal.utils.*
 import io.github.freya022.botcommands.internal.utils.ReflectionUtils.declaringClass
 import io.github.freya022.botcommands.internal.utils.ReflectionUtils.nonInstanceParameters
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.*
 import net.dv8tion.jda.api.events.Event
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
-import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
-import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.functions
 import kotlin.reflect.jvm.jvmErasure
 import kotlin.time.Duration
 import kotlin.time.toDuration
 import kotlin.time.toDurationUnit
 
-internal class SortedList<T>(private val comparator: Comparator<T>) {
-    // Only protect modification operations, traversal is fine
-    private val lock = ReentrantLock()
-    private var list: List<T> = arrayListOf()
-
-    fun add(t: T): Unit = lock.withLock {
-        val newList = list + t
-        this.list = newList.sortedWith(comparator)
-    }
-
-    fun remove(t: T): Boolean = lock.withLock {
-        val newList = list.toMutableList()
-        newList.remove(t).also {
-            this.list = newList
-        }
-    }
-
-    inline fun <R> map(block: (T) -> R): List<R> = list.map(block)
-
-    fun removeAll(removedList: SortedList<T>): Boolean = lock.withLock {
-        val newList = list.toMutableList()
-        return newList.removeAll(removedList.list).also {
-            this.list = newList
-        }
-    }
-
-    inline fun forEach(block: (T) -> Unit) = list.forEach(block)
-}
-
-private typealias EventMap = MutableMap<KClass<*>, SortedList<EventHandlerFunction>>
+private typealias EventMap = MutableMap<KClass<*>, EventListenerList>
 
 private val logger = KotlinLogging.logger { }
 
-/**
- * Dispatches JDA and BC events to [@BEventListener][BEventListener] methods.
- */
-@BService
-class EventDispatcher internal constructor(
+internal class EventListenerRegistry internal constructor(
     private val config: BConfig,
-    private val coroutineScopesConfig: BCoroutineScopesConfig,
     private val serviceContainer: ServiceContainer,
-    private val eventManager: CoroutineEventManager,
+    originalCoroutineEventManager: CoroutineEventManager,
     private val eventTreeService: EventTreeService,
     private val jdaService: JDAService,
-    functionAnnotationsMap: FunctionAnnotationsMap
+    functionAnnotationsMap: FunctionAnnotationsMap,
 ) {
+
+    private val eventTimeout: Duration = originalCoroutineEventManager.timeout
+
     private val map: EventMap = ConcurrentHashMap()
     private val listeners: MutableMap<Class<*>, EventMap> = ConcurrentHashMap()
 
@@ -88,15 +50,13 @@ class EventDispatcher internal constructor(
         functionAnnotationsMap
             .get<BEventListener>()
             .addAsEventListeners()
-
-        //This could dispatch to multiple listeners, timeout must be handled on a per-listener basis manually
-        // as jda-ktx takes this group of listeners as only being one.
-        eventManager.listener<Event>(timeout = Duration.INFINITE) {
-            dispatchEvent(it)
-        }
     }
 
-    fun addEventListener(listener: Any) {
+    internal operator fun get(eventType: KClass<*>): EventListenerList? {
+        return map[eventType]
+    }
+
+    internal fun addEventListener(listener: Any) {
         listener::class
             .functions
             .withFilter(FunctionFilter.annotation<BEventListener>())
@@ -104,7 +64,7 @@ class EventDispatcher internal constructor(
             .addAsEventListeners()
     }
 
-    fun removeEventListener(listener: Any) {
+    internal fun removeEventListener(listener: Any) {
         listeners.remove(listener::class.java)?.let { instanceMap ->
             instanceMap.forEach { (kClass, functions) ->
                 val functionMap = map[kClass]
@@ -113,71 +73,6 @@ class EventDispatcher internal constructor(
                     logger.error(InternalException("Unable to remove listener functions from registered functions")) { "An exception occurred while removing event listener $listener" }
                 }
             }
-        }
-    }
-
-    @JvmSynthetic
-    suspend fun dispatchEvent(event: Any) {
-        // No need to check for `event` type as if it's in the map, then it's recognized
-        val handlers = map[event::class] ?: return
-
-        handlers.forEach { eventHandler ->
-            if (eventHandler.isAsync) {
-                coroutineScopesConfig.eventDispatcherScope.launch {
-                    runEventHandler(eventHandler, event)
-                }
-            } else {
-                runEventHandler(eventHandler, event)
-            }
-        }
-    }
-
-    @JvmName("dispatchEvent")
-    fun dispatchEventJava(event: Any) = runBlocking { dispatchEvent(event) }
-
-    fun dispatchEventAsync(event: Any): List<Deferred<Unit>> {
-        // Try not to switch context on non-handled events
-        // No need to check for `event` type as if it's in the map, then it's recognized
-        val handlers = map[event::class] ?: return emptyList()
-
-        val scope = coroutineScopesConfig.eventDispatcherScope
-        return handlers.map { eventHandler ->
-            scope.async { runEventHandler(eventHandler, event) }
-        }
-    }
-
-    private suspend fun runEventHandler(eventHandlerFunction: EventHandlerFunction, event: Any) {
-        try {
-            val (instance, function) = eventHandlerFunction.classPathFunction
-
-            /**
-             * See [CoroutineEventManager.handle]
-             */
-            val actualTimeout = eventHandlerFunction.timeout
-            if (actualTimeout.isPositive() && actualTimeout.isFinite()) {
-                // Timeout only works when the continuations implement a cancellation handler
-                val result = withTimeoutOrNull(actualTimeout.inWholeMilliseconds) {
-                    function.callSuspend(instance, event, *eventHandlerFunction.parameters)
-                }
-                if (result == null) {
-                    logger.debug { "Event of type ${event.javaClass.simpleName} timed out." }
-                }
-            } else {
-                function.callSuspend(instance, event, *eventHandlerFunction.parameters)
-            }
-        } catch (e: InvocationTargetException) {
-            if (event is InitializationEvent) {
-                //Entry point will catch exception as it is the one dispatching the initialization events
-                throw e.cause!!
-            }
-
-            if (e.cause is CancellationException) return
-
-            printException(event, eventHandlerFunction, e)
-        } catch (_: CancellationException) {
-            // Ignore
-        } catch (e: Throwable) {
-            printException(event, eventHandlerFunction, e)
         }
     }
 
@@ -214,8 +109,9 @@ class EventDispatcher internal constructor(
                         )
                     }
                 }
+            @Suppress("DEPRECATION")
             val eventHandlerFunction = EventHandlerFunction(classPathFunction = classPathFunc,
-                isAsync = annotation.async,
+                runMode = if (annotation.async) RunMode.ASYNC else annotation.mode,
                 timeout = getTimeout(annotation),
                 priority = annotation.priority,
                 parametersBlock = {
@@ -227,12 +123,12 @@ class EventDispatcher internal constructor(
                 val instanceMap = listeners.computeIfAbsent(clazz) { hashMapOf() }
 
                 (eventTreeService.getSubclasses(eventErasure) + eventErasure).forEach {
-                    instanceMap.computeIfAbsent(it) { SortedList(EventHandlerFunction.priorityComparator) }.add(eventHandlerFunction)
+                    instanceMap.computeIfAbsent(it) { EventListenerList() }.add(eventHandlerFunction)
                 }
             }
 
             (eventTreeService.getSubclasses(eventErasure) + eventErasure).forEach {
-                map.computeIfAbsent(it) { SortedList(EventHandlerFunction.priorityComparator) }.add(eventHandlerFunction)
+                map.computeIfAbsent(it) { EventListenerList() }.add(eventHandlerFunction)
             }
         }
 
@@ -242,13 +138,8 @@ class EventDispatcher internal constructor(
         return annotation.timeout.toDuration(annotation.timeoutUnit.toDurationUnit()).let {
             when {
                 it.isPositive() && it.isFinite() -> it
-                else -> eventManager.timeout
+                else -> eventTimeout // Inherit from the (possibly user-provided) CoroutineEventManager
             }
         }
     }
-
-    private fun printException(event: Any, eventHandlerFunction: EventHandlerFunction, e: Throwable) =
-        logger.error(e.unwrap()) {
-            "An exception occurred while dispatching a ${event.javaClass.simpleNestedName} for ${eventHandlerFunction.classPathFunction.function.shortSignature}"
-        }
 }
