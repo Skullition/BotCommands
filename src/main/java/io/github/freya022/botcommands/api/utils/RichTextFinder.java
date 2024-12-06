@@ -129,7 +129,7 @@ public class RichTextFinder {
 
             final Emoji emoji = optEmoji.get();
             if (!isInCustomEmote(emoji)) {
-                normalMentionMap.put(aliasBegin, new RichText(emoji.getUnicode(), RichTextType.UNICODE_EMOTE));
+                normalMentionMap.put(aliasBegin, new RichText(emoji.getEmoji(), RichTextType.UNICODE_EMOTE));
                 addedStrs.put(aliasBegin, input.substring(aliasBegin, aliasEnd + 1));
             }
 
@@ -155,8 +155,8 @@ public class RichTextFinder {
 
     private void extractUnicodeEmojis() {
         for (IndexedEmoji indexedEmoji : EmojiManager.extractEmojisInOrderWithIndex(input)) {
-            normalMentionMap.put(indexedEmoji.getCharIndex(), new RichText(indexedEmoji.getEmoji().getUnicode(), RichTextType.UNICODE_EMOTE));
-            addedStrs.put(indexedEmoji.getCharIndex(), indexedEmoji.getEmoji().getUnicode());
+            normalMentionMap.put(indexedEmoji.getCharIndex(), new RichText(indexedEmoji.getEmoji().getEmoji(), RichTextType.UNICODE_EMOTE));
+            addedStrs.put(indexedEmoji.getCharIndex(), indexedEmoji.getEmoji().getEmoji());
         }
     }
 

@@ -71,7 +71,7 @@ public class EmojiUtils {
             }
             return null;
         }
-        return emoji.get().getUnicode();
+        return emoji.get().getEmoji();
     }
 
     @NotNull
