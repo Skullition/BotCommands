@@ -60,7 +60,7 @@ internal class AutocompleteListener(
         val failedGlobal = !applicationCommandsBuilder.hasPushedGlobalOnceSuccessfully()
         val failedGuild = if (guild != null) !applicationCommandsBuilder.hasPushedGuildOnceSuccessfully(guild) else false
         if (failedGlobal || failedGuild) {
-            logger.debug { "Ignoring autocomplete request for '${event.fullCommandName}' in guild '${event.guild?.name}' (${event.guild?.id}) as the commands failed to update on startup" }
+            logger.debug { "Ignoring autocomplete request for '${event.fullCommandName}' in guild '${event.guild?.name}' (${event.guild?.id}) as the command does not exist yet, or failed to update on startup" }
         } else {
             logger.debug { "Ignoring autocomplete request for '${event.fullCommandName}' in guild '${event.guild?.name}' (${event.guild?.id}) as the command does not exist" }
         }
