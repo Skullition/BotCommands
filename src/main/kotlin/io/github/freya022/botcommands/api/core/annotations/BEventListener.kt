@@ -7,6 +7,7 @@ import io.github.freya022.botcommands.api.core.config.BCoroutineScopesConfig
 import io.github.freya022.botcommands.api.core.events.BGenericEvent
 import io.github.freya022.botcommands.api.core.hooks.EventDispatcher
 import net.dv8tion.jda.api.events.GenericEvent
+import net.dv8tion.jda.api.requests.GatewayIntent
 import java.util.concurrent.TimeUnit
 
 /**
@@ -47,6 +48,10 @@ annotation class BEventListener(
      * @see BConfig.ignoredIntents
      */
     val ignoreIntents: Boolean = false,
+    /**
+     * Intents which should not be required for this event listener.
+     */
+    val ignoredIntents: Array<GatewayIntent> = [],
     /**
      * The time before the coroutine is canceled, using a negative value means no timeout.
      *

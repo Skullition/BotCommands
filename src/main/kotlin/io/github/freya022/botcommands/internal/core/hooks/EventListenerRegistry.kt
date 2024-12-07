@@ -9,10 +9,12 @@ import io.github.freya022.botcommands.api.core.events.BGenericEvent
 import io.github.freya022.botcommands.api.core.service.ServiceContainer
 import io.github.freya022.botcommands.api.core.utils.findAnnotationRecursive
 import io.github.freya022.botcommands.api.core.utils.isSubclassOf
-import io.github.freya022.botcommands.internal.core.*
+import io.github.freya022.botcommands.internal.core.ClassPathFunction
 import io.github.freya022.botcommands.internal.core.exceptions.InternalException
+import io.github.freya022.botcommands.internal.core.requiredFilter
 import io.github.freya022.botcommands.internal.core.service.FunctionAnnotationsMap
 import io.github.freya022.botcommands.internal.core.service.getParameters
+import io.github.freya022.botcommands.internal.core.toClassPathFunctions
 import io.github.freya022.botcommands.internal.utils.*
 import io.github.freya022.botcommands.internal.utils.ReflectionUtils.declaringClass
 import io.github.freya022.botcommands.internal.utils.ReflectionUtils.nonInstanceParameters
@@ -90,7 +92,7 @@ internal class EventListenerRegistry internal constructor(
             if (!annotation.ignoreIntents && eventErasure.isSubclassOf<Event>()) {
                 @Suppress("UNCHECKED_CAST")
                 val requiredIntents = GatewayIntent.fromEvents(eventErasure.java as Class<out Event>)
-                val missingIntents = requiredIntents - jdaService.intents - config.ignoredIntents
+                val missingIntents = requiredIntents - jdaService.intents - config.ignoredIntents - annotation.ignoredIntents
                 if (missingIntents.isNotEmpty()) {
                     return@forEach logger.debug { "Skipping event listener ${function.shortSignature} as it is missing intents: $missingIntents" }
                 }
