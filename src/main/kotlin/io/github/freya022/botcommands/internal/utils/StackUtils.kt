@@ -9,6 +9,14 @@ internal annotation class StackSensitive
 
 internal val stackWalker: StackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
 
+internal fun StackWalker.find(predicate: (StackFrame) -> Boolean): StackFrame? {
+    return walk { stream -> stream.filter(predicate).findFirst() }.orElse(null)
+}
+
+internal fun <R : Any> StackWalker.firstNotNullOfOrNull(predicate: (StackFrame) -> R?): R? {
+    return walk { stream -> stream.map { predicate(it) }.filter { it != null }.findFirst() }.orElse(null)
+}
+
 @PublishedApi
 internal fun currentFrame(): StackFrame {
     return stackWalker.walk { stream ->
