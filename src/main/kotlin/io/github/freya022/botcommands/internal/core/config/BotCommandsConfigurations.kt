@@ -35,6 +35,7 @@ internal class BotCommandsCoreConfiguration(
     override val serviceConfig: Nothing get() = unusable()
     override val databaseConfig: Nothing get() = unusable()
     override val localizationConfig: Nothing get() = unusable()
+    override val appEmojisConfig: Nothing get() = unusable()
     override val textConfig: Nothing get() = unusable()
     override val applicationConfig: Nothing get() = unusable()
     override val modalsConfig: Nothing get() = unusable()
@@ -72,6 +73,17 @@ internal fun BDatabaseConfigBuilder.applyConfig(configuration: BotCommandsDataba
     logQueries = configuration.logQueries
     logQueryParameters = configuration.logQueryParameters
     queryLogThreshold = configuration.queryLogThreshold
+}
+
+@ConfigurationProperties(prefix = "botcommands.app.emojis", ignoreUnknownFields = false)
+internal class BotCommandsAppEmojisConfiguration(
+    override val enable: Boolean = true,
+) : BAppEmojisConfig {
+
+}
+
+internal fun BAppEmojisConfigBuilder.applyConfig(configuration: BotCommandsAppEmojisConfiguration) = apply {
+    enable = configuration.enable
 }
 
 @ConfigurationProperties(prefix = "botcommands.text", ignoreUnknownFields = false)

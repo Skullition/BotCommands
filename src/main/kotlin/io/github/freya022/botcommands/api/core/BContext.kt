@@ -72,6 +72,8 @@ interface BContext {
         get() = config.debugConfig
     val serviceConfig: BServiceConfig
         get() = config.serviceConfig
+    val appEmojisConfig: BAppEmojisConfig
+        get() = config.appEmojisConfig
     val textConfig: BTextConfig
         get() = config.textConfig
     //endregion

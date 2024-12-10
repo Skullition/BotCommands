@@ -143,6 +143,7 @@ interface BConfig {
     val serviceConfig: BServiceConfig
     val databaseConfig: BDatabaseConfig
     val localizationConfig: BLocalizationConfig
+    val appEmojisConfig: BAppEmojisConfig
     val textConfig: BTextConfig
     val applicationConfig: BApplicationConfig
     val modalsConfig: BModalsConfig
@@ -199,6 +200,7 @@ class BConfigBuilder internal constructor() : BConfig {
     override val serviceConfig = BServiceConfigBuilder()
     override val databaseConfig = BDatabaseConfigBuilder()
     override val localizationConfig = BLocalizationConfigBuilder()
+    override val appEmojisConfig = BAppEmojisConfigBuilder()
     override val textConfig = BTextConfigBuilder()
     override val applicationConfig = BApplicationConfigBuilder()
     override val modalsConfig = BModalsConfigBuilder()
@@ -335,6 +337,10 @@ class BConfigBuilder internal constructor() : BConfig {
         localizationConfig.apply(block)
     }
 
+    fun appEmojis(block: ReceiverConsumer<BAppEmojisConfigBuilder>) {
+        appEmojisConfig.apply(block)
+    }
+
     fun textCommands(block: ReceiverConsumer<BTextConfigBuilder>) {
         textConfig.apply(block)
     }
@@ -373,6 +379,7 @@ class BConfigBuilder internal constructor() : BConfig {
             override val serviceConfig = this@BConfigBuilder.serviceConfig.build()
             override val databaseConfig = this@BConfigBuilder.databaseConfig.build()
             override val localizationConfig = this@BConfigBuilder.localizationConfig.build()
+            override val appEmojisConfig = this@BConfigBuilder.appEmojisConfig.build()
             override val textConfig = this@BConfigBuilder.textConfig.build()
             override val applicationConfig = this@BConfigBuilder.applicationConfig.build()
             override val modalsConfig = this@BConfigBuilder.modalsConfig.build()
