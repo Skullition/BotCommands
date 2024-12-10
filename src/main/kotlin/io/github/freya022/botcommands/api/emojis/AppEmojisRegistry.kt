@@ -1,5 +1,6 @@
 package io.github.freya022.botcommands.api.emojis
 
+import io.github.classgraph.ScanResult
 import io.github.freya022.botcommands.api.core.utils.findAnnotationRecursive
 import io.github.freya022.botcommands.api.core.utils.hasAnnotationRecursive
 import io.github.freya022.botcommands.api.core.utils.simpleNestedName
@@ -54,16 +55,16 @@ object AppEmojisRegistry {
     }
 
     /**
-     * Lazily retrieves an emoji named [emojiName], created from the [assetName] found in the `basePath` of your class.
+     * Lazily retrieves an emoji named [emojiName], created from the [assetPattern] found in the `basePath` of your class.
      *
      * The `basePath` is taken from the first [@AppEmojiContainer][AppEmojiContainer] found in the call stack,
      * typically the caller of this function.
      *
      * This cannot be used alongside non-lazy methods ([get] and [getValue]).
      *
-     * @param assetName The name of the file to be searched for, including the extension
-     * @param emojiName The name of the emoji uploaded on Discord,
-     * defaults to [assetName] without its extension and converted from `camelCase` to `snake_case`,
+     * @param assetPattern The [glob pattern][ScanResult.getResourcesMatchingWildcard] which matches a single file, includes the extension
+     * @param emojiName    The name of the emoji uploaded on Discord,
+     * defaults to [assetPattern] without its extension and converted from `camelCase` to `snake_case`,
      * must be between 2 and [EMOJI_NAME_MAX_LENGTH][ApplicationEmoji.EMOJI_NAME_MAX_LENGTH] and only have alphanumerics with dashes
      *
      * @throws IllegalCallerException   If [@AppEmojiContainer][AppEmojiContainer] is not found in the call stack
@@ -83,18 +84,18 @@ object AppEmojisRegistry {
         val annotation =
             stackWalker.firstNotNullOfOrNull { it.declaringClass.kotlin.findAnnotationRecursive<AppEmojiContainer>() }
                 ?: throw IllegalCallerException("This method can only be called by a ${annotationRef<AppEmojiContainer>()} class or any class in the call stack")
-        return lazy(annotation.basePath, assetName, emojiName)
+        return lazy(annotation.basePath, assetPattern, emojiName)
     }
 
     /**
-     * Lazily retrieves an emoji named [emojiName], created from the [assetName] found in the [basePath].
+     * Lazily retrieves an emoji named [emojiName], created from the [assetPattern] found in the [basePath].
      *
      * This cannot be used alongside non-lazy methods ([get] and [getValue]).
      *
-     * @param basePath  Path at which the file can be searched in; must start with a `/` and NOT end with a `/`
-     * @param assetName The name of the file to be searched for, including the extension
-     * @param emojiName The name of the emoji uploaded on Discord,
-     * defaults to [assetName] without its extension and converted from `camelCase` to `snake_case`,
+     * @param basePath     Path at which the file can be searched in; must start with a `/` and NOT end with a `/`
+     * @param assetPattern The [glob pattern][ScanResult.getResourcesMatchingWildcard] which matches a single file, includes the extension
+     * @param emojiName    The name of the emoji uploaded on Discord,
+     * defaults to [assetPattern] without its extension and converted from `camelCase` to `snake_case`,
      * must be between 2 and [EMOJI_NAME_MAX_LENGTH][ApplicationEmoji.EMOJI_NAME_MAX_LENGTH] and only have alphanumerics with dashes
      *
      * @throws IllegalArgumentException If [basePath] starts with a `/`
@@ -111,8 +112,8 @@ object AppEmojisRegistry {
         // Don't provide a default value; the user could think the default is the property name, when it isn't
         emojiName: String,
     ): Lazy<ApplicationEmoji> {
-        val identifier = UUID.randomUUID().toString()
-        AppEmojisLoader.register(basePath, assetName, emojiName, identifier)
+        val identifier = "<Lazy emoji '$emojiName' @ '$basePath/$assetPattern' | ${UUID.randomUUID()}>"
+        AppEmojisLoader.register(basePath, assetPattern, emojiName, identifier)
         return lazy {
             AppEmojisLoader.getByIdentifierOrNull(identifier)
                 ?: throwInternal("Could not get back emoji '$emojiName' from UUID")

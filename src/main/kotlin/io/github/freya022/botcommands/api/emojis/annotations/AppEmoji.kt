@@ -18,7 +18,7 @@ annotation class AppEmoji(
      *
      * This defaults to the field name, converted to `snake_case`.
      */
-    val assetName: String = DEFAULT,
+    val assetPattern: String = DEFAULT,
     /**
      * The name of the emoji as to be seen on Discord.
      *
