@@ -14,10 +14,8 @@ import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.superclasses
+import kotlin.reflect.jvm.*
 import kotlin.reflect.jvm.internal.impl.descriptors.ClassKind
-import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.jvmErasure
-import kotlin.reflect.jvm.kotlinFunction
 
 internal object ReflectionUtils {
     private val lock = ReentrantLock()
@@ -110,6 +108,12 @@ internal object ReflectionUtils {
             return callable as? KFunction<*>
                 ?: throwInternal("Unable to get the function of a KParameter, callable is: $callable")
         }
+
+    internal val KProperty<*>.declaringClass: KClass<*>
+        get() = (ReflectionMetadataAccessor.getDeclaringClass(this) as? KClass<*>)
+            ?: javaGetter?.declaringClass?.kotlin
+            ?: javaField?.declaringClass?.kotlin
+            ?: throwInternal("Cannot find declaring class of '$this'")
 
     internal val KFunction<*>.declaringClass: KClass<*>
         get() = this.javaMethodOrConstructor.declaringClass.kotlin

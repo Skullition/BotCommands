@@ -47,7 +47,7 @@ import net.dv8tion.jda.api.entities.emoji.ApplicationEmoji
  * object AppEmojis {
  *     // Create an emoji named 'not_my_emoji' from the file at 'emojis/not_my_emoji.png'
  *     // you can also customize the 'basePath', which overrides the one set in @AppEmojiContainer
- *     val myEmoji by AppEmojisRegistry.lazy(assetName = "not_my_emoji.png", emojiName = "not_my_emoji")
+ *     val myEmoji: ApplicationEmoji by AppEmojisRegistry.lazy(::myEmoji, /* Optional overrides */ assetPattern = "not_my_emoji.png", emojiName = "not_my_emoji")
  * }
  * ```
  *
