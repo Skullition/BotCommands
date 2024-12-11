@@ -29,6 +29,7 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.staticProperties
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.jvmErasure
+import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger { }
 
@@ -107,7 +108,7 @@ internal class AppEmojisLoader internal constructor(
     }
 
     @BEventListener(mode = RunMode.BLOCKING)
-    internal fun onPreGatewayConnect(event: PreFirstGatewayConnectEvent) {
+    internal fun onPreGatewayConnect(event: PreFirstGatewayConnectEvent) = runRequiredOrExit {
         if (packages.isEmpty()) return // Already logged in init
 
         if (toLoad.isEmpty()) return logger.debug { "No application emojis to load" }
@@ -154,6 +155,15 @@ internal class AppEmojisLoader internal constructor(
 
         logger.info { "Application emojis loaded, ${missingRequests.size} were created" }
         loaded = true
+    }
+
+    private inline fun runRequiredOrExit(block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Throwable) {
+            logger.error(e) { "Error while getting application emojis, shutting down the application to avoid later issues" }
+            exitProcess(115)
+        }
     }
 
     private inline fun withScannedResources(packages: Collection<String>, action: (ScanResult) -> Unit) {
