@@ -33,7 +33,7 @@ internal inline fun <T : MetadataFunctionHolder> Iterable<T>.forEachWithDelayedE
         runCatching {
             block(metadata)
         }.onFailure {
-            val newException = RuntimeException("An exception occurred while processing function ${metadata.func.shortSignature}", it)
+            val newException = RuntimeException("An exception occurred while processing function ${metadata.func.shortSignature}", it.unwrap())
             if (ex == null) {
                 ex = newException
             } else {

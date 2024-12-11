@@ -31,16 +31,16 @@ internal fun throwArgument(function: KFunction<*>, message: String): Nothing =
     throw IllegalArgumentException("$message\n    Function: ${function.shortSignature}")
 
 internal fun Throwable.rethrow(message: String): Nothing =
-    throw RuntimeException(message, this)
+    throw RuntimeException(message, unwrap())
 
 internal fun Throwable.rethrowAt(message: String, function: KFunction<*>): Nothing =
-    throw RuntimeException("$message\n    Function: ${function.shortSignature}", this)
+    throw RuntimeException("$message\n    Function: ${function.shortSignature}", unwrap())
 
 internal fun Throwable.rethrowAt(message: String, declarationSite: DeclarationSite): Nothing =
-    throw RuntimeException("$message\n    Declared at: $declarationSite", this)
+    throw RuntimeException("$message\n    Declared at: $declarationSite", unwrap())
 
 internal fun Throwable.rethrowAt(exceptionSupplier: (String, Throwable) -> Throwable, message: String, declarationSite: DeclarationSite): Nothing =
-    throw exceptionSupplier("$message\n    Declared at: $declarationSite", this)
+    throw exceptionSupplier("$message\n    Declared at: $declarationSite", unwrap())
 
 internal fun throwArgument(message: String, declarationSite: DeclarationSite? = null): Nothing =
     when (declarationSite) {
