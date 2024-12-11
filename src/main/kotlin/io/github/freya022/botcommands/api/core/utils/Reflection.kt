@@ -113,7 +113,8 @@ val KFunction<*>.javaMethodOrConstructorOrNull: Executable?
     get() = javaMethod ?: javaConstructor
 
 val KFunction<*>.javaMethodOrConstructor: Executable
-    get() = javaMethodOrConstructorOrNull ?: throwInternal(this, "Could not resolve Java method or constructor")
+    // Don't feed function to throwInternal, will cause an infinite recursion
+    get() = javaMethodOrConstructorOrNull ?: throwInternal("Could not resolve Java method or constructor of '$this'")
 
 val Class<*>.allSuperclasses: List<Class<*>>
     get() = buildList {
