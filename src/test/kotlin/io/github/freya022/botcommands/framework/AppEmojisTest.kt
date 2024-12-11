@@ -2,12 +2,12 @@ package io.github.freya022.botcommands.framework
 
 import io.github.freya022.botcommands.api.core.BotCommands
 import io.github.freya022.botcommands.api.core.config.BConfigBuilder
-import io.github.freya022.botcommands.api.core.events.PreFirstGatewayConnectEvent
 import io.github.freya022.botcommands.api.core.service.getService
 import io.github.freya022.botcommands.api.emojis.AppEmojisRegistry
 import io.github.freya022.botcommands.api.emojis.annotations.AppEmojiContainer
 import io.github.freya022.botcommands.internal.emojis.AppEmojisLoader
 import io.mockk.*
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.emoji.ApplicationEmoji
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -141,11 +141,11 @@ class AppEmojisTest : AbstractAppEmojisTest() {
         }
         val loader = context.getService<AppEmojisLoader>()
 
-        val event = mockk<PreFirstGatewayConnectEvent> {
-            every { jda.retrieveApplicationEmojis().complete() } returns emptyList()
+        val jda = mockk<JDA> {
+            every { retrieveApplicationEmojis().complete() } returns emptyList()
         }
         assertThrows<IllegalArgumentException> {
-            loader.onPreGatewayConnect(event)
+            loader.loadEmojis(jda)
         }
     }
 
@@ -161,11 +161,11 @@ class AppEmojisTest : AbstractAppEmojisTest() {
         }
         val loader = context.getService<AppEmojisLoader>()
 
-        val event = mockk<PreFirstGatewayConnectEvent> {
-            every { jda.retrieveApplicationEmojis().complete() } returns emptyList()
+        val jda = mockk<JDA> {
+            every { retrieveApplicationEmojis().complete() } returns emptyList()
         }
         assertThrows<IllegalArgumentException> {
-            loader.onPreGatewayConnect(event)
+            loader.loadEmojis(jda)
         }
     }
 
@@ -181,12 +181,12 @@ class AppEmojisTest : AbstractAppEmojisTest() {
         }
         val loader = context.getService<AppEmojisLoader>()
 
-        val event = mockk<PreFirstGatewayConnectEvent> {
-            every { jda.retrieveApplicationEmojis().complete() } returns emptyList()
-            every { jda.createApplicationEmoji(any(), any()).complete() } returns mockk()
+        val jda = mockk<JDA> {
+            every { retrieveApplicationEmojis().complete() } returns emptyList()
+            every { createApplicationEmoji(any(), any()).complete() } returns mockk()
         }
         assertDoesNotThrow {
-            loader.onPreGatewayConnect(event)
+            loader.loadEmojis(jda)
         }
     }
 }

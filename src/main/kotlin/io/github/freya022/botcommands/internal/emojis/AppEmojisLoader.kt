@@ -19,6 +19,7 @@ import io.github.freya022.botcommands.internal.utils.annotationRef
 import io.github.freya022.botcommands.internal.utils.putIfAbsentOrThrowInternal
 import io.github.freya022.botcommands.internal.utils.toDiscordString
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Icon
 import net.dv8tion.jda.api.entities.emoji.ApplicationEmoji
 import net.dv8tion.jda.internal.utils.Checks
@@ -36,7 +37,7 @@ private val logger = KotlinLogging.logger { }
 /**
  * The [register] function is the core of the loading mechanism,
  * by adding a set of basePath/assetPattern/emojiName/identifier,
- * the [retriever/uploader][onPreGatewayConnect] can then create the registered emojis,
+ * the [retriever/uploader][loadEmojis] can then create the registered emojis,
  * and then assign them to a map of loaded emojis, with the key being the "identifier".
  *
  * When an application emoji container is detected,
@@ -108,14 +109,23 @@ internal class AppEmojisLoader internal constructor(
     }
 
     @BEventListener(mode = RunMode.BLOCKING)
-    internal fun onPreGatewayConnect(event: PreFirstGatewayConnectEvent) = runRequiredOrExit {
+    internal fun onPreGatewayConnect(event: PreFirstGatewayConnectEvent) {
+        try {
+            loadEmojis(event.jda)
+        } catch (e: Throwable) {
+            logger.error(e) { "Error while getting application emojis, shutting down the application to avoid later issues" }
+            exitProcess(115)
+        }
+    }
+
+    internal fun loadEmojis(jda: JDA) {
         if (packages.isEmpty()) return // Already logged in init
 
         if (toLoad.isEmpty()) return logger.debug { "No application emojis to load" }
 
         logger.debug { "Fetching application emojis" }
 
-        val applicationEmojis = event.jda.retrieveApplicationEmojis().complete()
+        val applicationEmojis = jda.retrieveApplicationEmojis().complete()
 
         val missingRequests = arrayListOf<LoadRequest>()
         toLoad.forEach { request ->
@@ -148,22 +158,13 @@ internal class AppEmojisLoader internal constructor(
                 }
 
                 val icon = resources.single().open().use(Icon::from)
-                val applicationEmoji = event.jda.createApplicationEmoji(emojiName, icon).complete()
+                val applicationEmoji = jda.createApplicationEmoji(emojiName, icon).complete()
                 loadedEmojis.putIfAbsentOrThrowInternal(identifier, applicationEmoji)
             }
         }
 
         logger.info { "Application emojis loaded, ${missingRequests.size} were created" }
         loaded = true
-    }
-
-    private inline fun runRequiredOrExit(block: () -> Unit) {
-        try {
-            block()
-        } catch (e: Throwable) {
-            logger.error(e) { "Error while getting application emojis, shutting down the application to avoid later issues" }
-            exitProcess(115)
-        }
     }
 
     private inline fun withScannedResources(packages: Collection<String>, action: (ScanResult) -> Unit) {
