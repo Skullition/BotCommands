@@ -61,6 +61,26 @@ internal fun throwState(message: String): Nothing =
     throw IllegalStateException(message)
 
 @OptIn(ExperimentalContracts::class)
+internal inline fun requireThrowing(value: Boolean, throwableSupplier: (String) -> Throwable, function: KFunction<*>? = null, lazyMessage: () -> String) {
+    contract {
+        returns() implies value
+    }
+
+    if (!value) {
+        val message = lazyMessage()
+        if (function != null)
+            throw throwableSupplier(exceptionMessage(message, function))
+        else
+            throw throwableSupplier(exceptionMessage(message))
+    }
+}
+
+private fun exceptionMessage(message: String, function: KFunction<*>) =
+    "$message\n    Function: ${function.shortSignature}"
+
+private fun exceptionMessage(message: String) = message
+
+@OptIn(ExperimentalContracts::class)
 internal inline fun requireAt(value: Boolean, function: KFunction<*>? = null, lazyMessage: () -> String) {
     contract {
         returns() implies value

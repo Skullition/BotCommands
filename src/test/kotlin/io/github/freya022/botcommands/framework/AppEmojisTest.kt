@@ -5,6 +5,9 @@ import io.github.freya022.botcommands.api.core.config.BConfigBuilder
 import io.github.freya022.botcommands.api.core.service.getService
 import io.github.freya022.botcommands.api.emojis.AppEmojisRegistry
 import io.github.freya022.botcommands.api.emojis.annotations.AppEmojiContainer
+import io.github.freya022.botcommands.api.emojis.exceptions.EmojiAlreadyExistsException
+import io.github.freya022.botcommands.api.emojis.exceptions.NoEmojiResourceException
+import io.github.freya022.botcommands.api.emojis.exceptions.NonUniqueEmojiResourceException
 import io.github.freya022.botcommands.internal.emojis.AppEmojisLoader
 import io.mockk.*
 import net.dv8tion.jda.api.JDA
@@ -126,7 +129,7 @@ class AppEmojisTest : AbstractAppEmojisTest() {
     @Test
     fun `Can't register multiple emojis of same name`() {
         assertDoesNotThrow { AppEmojisLoader.register(EXAMPLE_BASE_PATH, EXAMPLE_ASSET_PATTERN, EXAMPLE_EMOJI_NAME, TEST_IDENTIFIER) }
-        assertThrows<IllegalArgumentException> { AppEmojisLoader.register(EXAMPLE_BASE_PATH, EXAMPLE_ASSET_PATTERN, EXAMPLE_EMOJI_NAME, TEST_IDENTIFIER) }
+        assertThrows<EmojiAlreadyExistsException> { AppEmojisLoader.register(EXAMPLE_BASE_PATH, EXAMPLE_ASSET_PATTERN, EXAMPLE_EMOJI_NAME, TEST_IDENTIFIER) }
     }
 
     @AppEmojiContainer
@@ -135,7 +138,7 @@ class AppEmojisTest : AbstractAppEmojisTest() {
     }
 
     @Test
-    fun `Multiple resource candidates throws IAE`() {
+    fun `Multiple resource candidates throws`() {
         val context = light {
             addClass<MultipleCandidates>()
         }
@@ -144,7 +147,7 @@ class AppEmojisTest : AbstractAppEmojisTest() {
         val jda = mockk<JDA> {
             every { retrieveApplicationEmojis().complete() } returns emptyList()
         }
-        assertThrows<IllegalArgumentException> {
+        assertThrows<NonUniqueEmojiResourceException> {
             loader.loadEmojis(jda)
         }
     }
@@ -155,7 +158,7 @@ class AppEmojisTest : AbstractAppEmojisTest() {
     }
 
     @Test
-    fun `No resource candidates throws IAE`() {
+    fun `No resource candidates throws`() {
         val context = light {
             addClass<NoCandidate>()
         }
@@ -164,7 +167,7 @@ class AppEmojisTest : AbstractAppEmojisTest() {
         val jda = mockk<JDA> {
             every { retrieveApplicationEmojis().complete() } returns emptyList()
         }
-        assertThrows<IllegalArgumentException> {
+        assertThrows<NoEmojiResourceException> {
             loader.loadEmojis(jda)
         }
     }

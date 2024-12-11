@@ -14,9 +14,13 @@ import io.github.freya022.botcommands.api.emojis.AppEmojisRegistry
 import io.github.freya022.botcommands.api.emojis.annotations.AppEmoji
 import io.github.freya022.botcommands.api.emojis.annotations.AppEmojiContainer
 import io.github.freya022.botcommands.api.emojis.annotations.RequiresAppEmojis
+import io.github.freya022.botcommands.api.emojis.exceptions.EmojiAlreadyExistsException
+import io.github.freya022.botcommands.api.emojis.exceptions.NoEmojiResourceException
+import io.github.freya022.botcommands.api.emojis.exceptions.NonUniqueEmojiResourceException
 import io.github.freya022.botcommands.internal.emojis.AppEmojisLoader.Companion.register
 import io.github.freya022.botcommands.internal.utils.annotationRef
 import io.github.freya022.botcommands.internal.utils.putIfAbsentOrThrowInternal
+import io.github.freya022.botcommands.internal.utils.requireThrowing
 import io.github.freya022.botcommands.internal.utils.toDiscordString
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.dv8tion.jda.api.JDA
@@ -150,10 +154,10 @@ internal class AppEmojisLoader internal constructor(
                 // CG doesn't need / as root
                 val wildcardString = "${basePath.drop(1)}/$assetPattern"
                 val resources = scan.getResourcesMatchingWildcard(wildcardString)
-                require(resources.isNotEmpty()) {
+                requireThrowing(resources.isNotEmpty(), ::NoEmojiResourceException) {
                     "Found no resources for '$identifier', matching '$wildcardString'"
                 }
-                require(resources.size == 1) {
+                requireThrowing(resources.size == 1, ::NonUniqueEmojiResourceException) {
                     "Found multiple resources for '$identifier': ${resources.joinToString { it.pathRelativeToClasspathElement }}"
                 }
 
@@ -219,7 +223,9 @@ internal class AppEmojisLoader internal constructor(
                 "Cannot get an application emoji after they were loaded, did you forget to use ${annotationRef<AppEmojiContainer>()}?"
             }
 
-            require(toLoadEmojiNames.add(emojiName)) { "The emoji name '$emojiName' is already in use." }
+            requireThrowing(toLoadEmojiNames.add(emojiName), ::EmojiAlreadyExistsException) {
+                "The emoji name '$emojiName' is already in use."
+            }
 
             toLoad += LoadRequest(basePath, assetPattern, emojiName, identifier)
         }

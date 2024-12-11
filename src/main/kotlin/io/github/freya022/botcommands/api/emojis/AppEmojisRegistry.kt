@@ -7,6 +7,7 @@ import io.github.freya022.botcommands.api.core.utils.simpleNestedName
 import io.github.freya022.botcommands.api.emojis.AppEmojisRegistry.get
 import io.github.freya022.botcommands.api.emojis.AppEmojisRegistry.getValue
 import io.github.freya022.botcommands.api.emojis.annotations.AppEmojiContainer
+import io.github.freya022.botcommands.api.emojis.exceptions.EmojiAlreadyExistsException
 import io.github.freya022.botcommands.internal.emojis.AppEmojisLoader
 import io.github.freya022.botcommands.internal.utils.*
 import io.github.freya022.botcommands.internal.utils.ReflectionUtils.declaringClass
@@ -68,13 +69,13 @@ object AppEmojisRegistry {
      * defaults to [assetPattern] without its extension and converted from `camelCase` to `snake_case`,
      * must be between 2 and [EMOJI_NAME_MAX_LENGTH][ApplicationEmoji.EMOJI_NAME_MAX_LENGTH] and only have alphanumerics with dashes
      *
-     * @throws IllegalCallerException   If [@AppEmojiContainer][AppEmojiContainer] is not found in the call stack
-     * @throws IllegalArgumentException If the `basePath` starts with a `/`
-     * @throws IllegalArgumentException If the `basePath` ends with a `/`
-     * @throws IllegalArgumentException If [emojiName] is too long or too short
-     * @throws IllegalArgumentException If [emojiName] has invalid characters
-     * @throws IllegalArgumentException If an emoji with the same name was already registered
-     * @throws IllegalStateException    If the emojis were already loaded
+     * @throws IllegalCallerException      If [@AppEmojiContainer][AppEmojiContainer] is not found in the call stack
+     * @throws IllegalArgumentException    If the `basePath` starts with a `/`
+     * @throws IllegalArgumentException    If the `basePath` ends with a `/`
+     * @throws IllegalArgumentException    If [emojiName] is too long or too short
+     * @throws IllegalArgumentException    If [emojiName] has invalid characters
+     * @throws EmojiAlreadyExistsException If an emoji with the same name was already registered
+     * @throws IllegalStateException       If the emojis were already loaded
      */
     @JvmSynthetic
     fun lazy(
@@ -99,12 +100,12 @@ object AppEmojisRegistry {
      * defaults to [assetPattern] without its extension and converted from `camelCase` to `snake_case`,
      * must be between 2 and [EMOJI_NAME_MAX_LENGTH][ApplicationEmoji.EMOJI_NAME_MAX_LENGTH] and only have alphanumerics with dashes
      *
-     * @throws IllegalArgumentException If [basePath] starts with a `/`
-     * @throws IllegalArgumentException If [basePath] ends with a `/`
-     * @throws IllegalArgumentException If [emojiName] is too long or too short
-     * @throws IllegalArgumentException If [emojiName] has invalid characters
-     * @throws IllegalArgumentException If an emoji with the same name was already registered
-     * @throws IllegalStateException    If the emojis were already loaded
+     * @throws IllegalArgumentException    If [basePath] starts with a `/`
+     * @throws IllegalArgumentException    If [basePath] ends with a `/`
+     * @throws IllegalArgumentException    If [emojiName] is too long or too short
+     * @throws IllegalArgumentException    If [emojiName] has invalid characters
+     * @throws EmojiAlreadyExistsException If an emoji with the same name was already registered
+     * @throws IllegalStateException       If the emojis were already loaded
      */
     @JvmSynthetic
     fun lazy(
@@ -138,12 +139,12 @@ object AppEmojisRegistry {
      * defaults to [assetPattern] without its extension and converted from `camelCase` to `snake_case`,
      * must be between 2 and [EMOJI_NAME_MAX_LENGTH][ApplicationEmoji.EMOJI_NAME_MAX_LENGTH] and only have alphanumerics with dashes
      *
-     * @throws IllegalArgumentException If [basePath] starts with a `/`
-     * @throws IllegalArgumentException If [basePath] ends with a `/`
-     * @throws IllegalArgumentException If [emojiName] is too long or too short
-     * @throws IllegalArgumentException If [emojiName] has invalid characters
-     * @throws IllegalArgumentException If an emoji with the same name was already registered
-     * @throws IllegalStateException    If the emojis were already loaded
+     * @throws IllegalArgumentException    If [basePath] starts with a `/`
+     * @throws IllegalArgumentException    If [basePath] ends with a `/`
+     * @throws IllegalArgumentException    If [emojiName] is too long or too short
+     * @throws IllegalArgumentException    If [emojiName] has invalid characters
+     * @throws EmojiAlreadyExistsException If an emoji with the same name was already registered
+     * @throws IllegalStateException       If the emojis were already loaded
      */
     @JvmSynthetic
     fun lazy(
