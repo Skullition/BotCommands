@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.emoji.ApplicationEmoji
  *
  * **Kotlin note:** This cannot be used with [AppEmojisRegistry.lazy].
  */
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class AppEmoji(
     /**
