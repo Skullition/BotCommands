@@ -50,6 +50,14 @@ internal class ApplicationCommandsContextImpl internal constructor(
         return getApplicationCommandById<SlashCommandInfo>(topLevelCommand.idLong, path.group, path.subname)
     }
 
+    override fun findTopLevelSlashCommand(guild: Guild?, name: String): TopLevelSlashCommandInfo? {
+        val topLevelCommand = liveTopLevelApplicationCommands.valueCollection()
+            .find { it.guildId == guild?.idLong && it.name == name }
+            ?: return logger.debugNull { "Could not find top-level slash command named '$name'" }
+
+        return getApplicationCommandById<TopLevelSlashCommandInfo>(topLevelCommand.idLong, group = null, subcommand = null)
+    }
+
     override fun findUserCommand(guild: Guild?, name: String): UserCommandInfo? {
         val topLevelCommand = liveTopLevelApplicationCommands.valueCollection()
             .find { it.guildId == guild?.idLong && it.name == name }

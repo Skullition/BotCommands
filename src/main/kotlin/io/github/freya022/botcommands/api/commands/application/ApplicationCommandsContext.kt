@@ -7,6 +7,7 @@ import io.github.freya022.botcommands.api.commands.application.context.user.User
 import io.github.freya022.botcommands.api.commands.application.provider.GlobalApplicationCommandProvider
 import io.github.freya022.botcommands.api.commands.application.provider.GuildApplicationCommandProvider
 import io.github.freya022.botcommands.api.commands.application.slash.SlashCommandInfo
+import io.github.freya022.botcommands.api.commands.application.slash.TopLevelSlashCommandInfo
 import io.github.freya022.botcommands.api.commands.application.slash.autocomplete.annotations.AutocompleteHandler
 import io.github.freya022.botcommands.api.commands.application.slash.autocomplete.declaration.AutocompleteManager
 import io.github.freya022.botcommands.api.core.service.annotations.InterfacedService
@@ -22,28 +23,45 @@ import kotlin.reflect.KFunction
 @InterfacedService(acceptMultiple = false)
 interface ApplicationCommandsContext {
     /**
-     * Returns the [SlashCommandInfo] with the specified path,
-     * if it is published in that scope, either in the guild, or globally.
+     * Returns the [SlashCommandInfo] with the specified path and scope.
      *
-     * @param guild The guild from which to get the commands, can be `null` for global commands
-     * @param path  Full path of the slash command (Examples: `ban` ; `info user` ; `ban user perm`)
+     * If [guild] is not null, only commands from the guild are considered,
+     * otherwise only global commands are considered.
+     *
+     * @param guild The guild from which to get the command, can be `null` for global commands
+     * @param path  Full path of the slash command, see [CommandPath.of]
      */
     fun findSlashCommand(guild: Guild?, path: CommandPath): SlashCommandInfo?
 
     /**
-     * Returns the [UserCommandInfo] with the specified name,
-     * if it is published in that scope, either in the guild, or globally.
+     * Returns the [TopLevelSlashCommandInfo] with the specified name and scope.
      *
-     * @param guild The guild from which to get the commands, can be `null` for global commands
+     * If [guild] is not null, only commands from the guild are considered,
+     * otherwise only global commands are considered.
+     *
+     * @param guild The guild from which to get the command, can be `null` for global commands
+     * @param name  Name of the top-level slash command
+     */
+    fun findTopLevelSlashCommand(guild: Guild?, name: String): TopLevelSlashCommandInfo?
+
+    /**
+     * Returns the [UserCommandInfo] with the specified name and scope.
+     *
+     * If [guild] is not null, only commands from the guild are considered,
+     * otherwise only global commands are considered.
+     *
+     * @param guild The guild from which to get the command, can be `null` for global commands
      * @param name  Name of the user context command
      */
     fun findUserCommand(guild: Guild?, name: String): UserCommandInfo?
 
     /**
-     * Returns the [MessageCommandInfo] with the specified name,
-     * if it is published in that scope, either in the guild, or globally.
+     * Returns the [MessageCommandInfo] with the specified name.
      *
-     * @param guild The guild from which to get the commands, can be `null` for global commands
+     * If [guild] is not null, only commands from the guild are considered,
+     * otherwise only global commands are considered.
+     *
+     * @param guild The guild from which to get the command, can be `null` for global commands
      * @param name  Name of the message context command
      */
     fun findMessageCommand(guild: Guild?, name: String): MessageCommandInfo?
