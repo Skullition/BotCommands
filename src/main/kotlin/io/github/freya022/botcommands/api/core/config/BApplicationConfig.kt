@@ -155,12 +155,10 @@ interface BApplicationConfig {
         }
 
     /**
-     * Sets whether all application commands should be guild-only, regardless of the command scope on the annotation.
+     * Whether all application commands should be registered on each guild,
+     * regardless of the command scope on the annotation.
      *
-     * **Beware**: This also means that your global application commands will **not** be registered.
-     *
-     * **Note:** This only works on **annotated** commands,
-     * as you can return when manually declaring with the DSL
+     * **Note:** This only works on **annotated** commands, you will need to handle code-declared commands.
      *
      * Default: `false`
      *
