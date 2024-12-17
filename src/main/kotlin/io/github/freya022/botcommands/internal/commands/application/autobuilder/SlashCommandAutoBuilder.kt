@@ -255,7 +255,7 @@ internal class SlashCommandAutoBuilder(
                 }
             }
             // Prioritize [[TopLevelSlashCommandData]] as this is top level
-            topLevelMetadata.annotation.description.nullIfBlank() ?: annotation.description.nullIfBlank()
+            description = topLevelMetadata.annotation.description.nullIfBlank() ?: annotation.description.nullIfBlank()
 
             addSubcommands(manager, subcommandsMetadata, metadata.commandId)
 
