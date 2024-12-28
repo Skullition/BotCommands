@@ -1,7 +1,9 @@
 package io.github.freya022.botcommands.api.core
 
 import io.github.freya022.botcommands.api.core.options.Option
+import io.github.freya022.botcommands.api.core.utils.*
 import io.github.freya022.botcommands.api.parameters.AggregatedParameter
+import kotlin.collections.flatMap
 import kotlin.reflect.KFunction
 
 /**
@@ -61,4 +63,75 @@ interface Executable {
             "prefer using collection operations on 'allOptions' instead, make an extension or an utility method")
     fun getOptionByDeclaredName(name: String): Option? =
         allOptions.find { it.declaredName == name }
+
+    /**
+     * Returns `true` if this element is annotated with [annotationType].
+     *
+     * The search is breadth-first and considers meta-annotations.
+     */
+    fun hasAnnotation(annotationType: Class<out Annotation>) = function.hasAnnotationRecursive(annotationType.kotlin)
+
+    /**
+     * Finds a single annotation of type [annotationType] from the annotated element.
+     *
+     * The search is breadth-first and considers meta-annotations.
+     */
+    fun <A : Annotation> findAnnotation(annotationType: Class<out A>) = function.findAnnotationRecursive(annotationType.kotlin)
+
+    /**
+     * Finds all annotations of type [annotationType] from the annotated element.
+     *
+     * The search is breadth-first and considers meta-annotations.
+     *
+     * [@Repeatable][Repeatable] is supported.
+     *
+     * @param rootOverride Whether a direct annotation on this element overrides all meta-annotations
+     */
+    fun <A : Annotation> findAllAnnotations(annotationType: Class<out A>, rootOverride: Boolean) = function.findAllAnnotations(annotationType.kotlin)
+
+    /**
+     * Finds all annotations meta-annotated with [annotationType] from the annotated element.
+     *
+     * The search is breadth-first and considers meta-annotations.
+     */
+    fun <A : Annotation> findAllAnnotationsWith(annotationType: Class<out A>) = function.findAllAnnotationsWith(annotationType.kotlin)
+
+    /**
+     * Finds all annotations from the annotated element.
+     *
+     * The search is breadth-first and considers meta-annotations.
+     */
+    fun getAllAnnotations() = function.getAllAnnotations()
 }
+
+/**
+ * Returns `true` if this element is annotated with [A].
+ *
+ * The search is breadth-first and considers meta-annotations.
+ */
+inline fun <reified A : Annotation> Executable.hasAnnotation() = function.hasAnnotationRecursive<A>()
+
+/**
+ * Finds a single annotation of type [A] from the annotated element.
+ *
+ * The search is breadth-first and considers meta-annotations.
+ */
+inline fun <reified A : Annotation> Executable.findAnnotation() = function.findAnnotationRecursive<A>()
+
+/**
+ * Finds all annotations of type [A] from the annotated element.
+ *
+ * The search is breadth-first and considers meta-annotations.
+ *
+ * [@Repeatable][Repeatable] is supported.
+ *
+ * @param rootOverride Whether a direct annotation on this element overrides all meta-annotations
+ */
+inline fun <reified A : Annotation> Executable.findAllAnnotations(rootOverride: Boolean = true) = function.findAllAnnotations<A>(rootOverride)
+
+/**
+ * Finds all annotations meta-annotated with [A] from the annotated element.
+ *
+ * The search is breadth-first and considers meta-annotations.
+ */
+inline fun <reified A : Annotation> Executable.findAllAnnotationsWith() = function.findAllAnnotationsWith<A>()
