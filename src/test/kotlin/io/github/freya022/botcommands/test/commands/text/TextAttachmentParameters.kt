@@ -8,12 +8,14 @@ import io.github.freya022.botcommands.api.core.options.Option
 import io.github.freya022.botcommands.api.core.service.annotations.Resolver
 import io.github.freya022.botcommands.api.parameters.ClassParameterResolver
 import io.github.freya022.botcommands.api.parameters.resolvers.ICustomResolver
+import io.github.freya022.botcommands.test.services.Disabled
 import net.dv8tion.jda.api.entities.Message.Attachment
 import net.dv8tion.jda.api.events.Event
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import kotlin.reflect.jvm.jvmErasure
 
 @Resolver
+@Disabled
 class TextAttachmentResolver :
         ClassParameterResolver<TextAttachmentResolver, Attachment>(Attachment::class),
         ICustomResolver<TextAttachmentResolver, Attachment> {
