@@ -2,17 +2,10 @@
 
 package io.github.freya022.botcommands.api.core.utils
 
-import io.github.freya022.botcommands.internal.utils.throwArgument
 import java.lang.annotation.Inherited
-import java.lang.reflect.AnnotatedElement
-import java.lang.reflect.Constructor
-import java.lang.reflect.Field
-import java.lang.reflect.Method
 import java.util.*
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.kotlinFunction
-import kotlin.reflect.jvm.kotlinProperty
 import kotlin.reflect.safeCast
 
 /**
@@ -21,8 +14,8 @@ import kotlin.reflect.safeCast
  * The search is breadth-first and considers meta-annotations,
  * but does not support superclasses via [@Inherited][Inherited].
  */
-fun hasAnnotationRecursive(element: AnnotatedElement, annotationType: Class<out Annotation>): Boolean =
-    element.toKAnnotatedElement().hasAnnotationRecursive(annotationType.kotlin)
+fun hasAnnotationRecursive(element: KAnnotatedElement, annotationType: Class<out Annotation>): Boolean =
+    element.hasAnnotationRecursive(annotationType.kotlin)
 
 /**
  * Returns `true` if this element is annotated with [A].
@@ -50,8 +43,8 @@ fun KAnnotatedElement.hasAnnotationRecursive(annotationType: KClass<out Annotati
  * The search is breadth-first and considers meta-annotations,
  * but does not support superclasses via [@Inherited][Inherited].
  */
-fun <A : Annotation> findAnnotationRecursive(element: AnnotatedElement, annotationType: Class<A>): A? =
-    element.toKAnnotatedElement().findAnnotationRecursive(annotationType.kotlin)
+fun <A : Annotation> findAnnotationRecursive(element: KAnnotatedElement, annotationType: Class<A>): A? =
+    element.findAnnotationRecursive(annotationType.kotlin)
 
 /**
  * Finds a single annotation of type [A] from the annotated element.
@@ -95,8 +88,8 @@ fun <A : Annotation> KAnnotatedElement.findAnnotationRecursive(annotationType: K
  * @param rootOverride Whether a direct annotation on this element overrides all meta-annotations
  */
 @JvmOverloads
-fun <A : Annotation> findAllAnnotations(element: AnnotatedElement, annotationType: Class<A>, rootOverride: Boolean = true): List<A> =
-    element.toKAnnotatedElement().findAllAnnotations(annotationType.kotlin, rootOverride)
+fun <A : Annotation> findAllAnnotations(element: KAnnotatedElement, annotationType: Class<A>, rootOverride: Boolean = true): List<A> =
+    element.findAllAnnotations(annotationType.kotlin, rootOverride)
 
 /**
  * Finds all annotations of type [A] from the annotated element.
@@ -151,8 +144,8 @@ data class MetaAnnotatedClass<A : Annotation> internal constructor(
  * The search is breadth-first and considers meta-annotations,
  * but does not support superclasses via [@Inherited][Inherited].
  */
-fun <A : Annotation> findAllAnnotationsWith(element: AnnotatedElement, annotationType: Class<A>): List<MetaAnnotatedClass<A>> =
-    element.toKAnnotatedElement().findAllAnnotationsWith(annotationType.kotlin)
+fun <A : Annotation> findAllAnnotationsWith(element: KAnnotatedElement, annotationType: Class<A>): List<MetaAnnotatedClass<A>> =
+    element.findAllAnnotationsWith(annotationType.kotlin)
 
 /**
  * Finds all annotations meta-annotated with [A] from the annotated element.
@@ -193,8 +186,8 @@ fun <A : Annotation> KAnnotatedElement.findAllAnnotationsWith(annotationType: KC
  * The search is breadth-first and considers meta-annotations,
  * but does not support superclasses via [@Inherited][Inherited].
  */
-fun getAllAnnotations(element: AnnotatedElement): List<Annotation> =
-    element.toKAnnotatedElement().getAllAnnotations()
+fun getAllAnnotations(element: KAnnotatedElement): List<Annotation> =
+    element.getAllAnnotations()
 
 /**
  * Finds all annotations from the annotated element.
@@ -203,19 +196,12 @@ fun getAllAnnotations(element: AnnotatedElement): List<Annotation> =
  * but does not support superclasses via [@Inherited][Inherited].
  */
 @JvmSynthetic
+@JvmName("getAllAnnotationsKotlin")
 fun KAnnotatedElement.getAllAnnotations(): List<Annotation> = buildList {
     bfs(this@getAllAnnotations) {
         this += it
         true
     }
-}
-
-private fun AnnotatedElement.toKAnnotatedElement(): KAnnotatedElement = when (this) {
-    is Class<*> -> kotlin
-    is Method -> kotlinFunction ?: throwArgument("Cannot represent as a KFunction: $this")
-    is Constructor<*> -> kotlinFunction ?: throwArgument("Cannot represent as a KFunction (constructor): $this")
-    is Field -> kotlinProperty ?: throwArgument("Cannot represent as a KProperty: $this")
-    else -> throwArgument("Cannot represent as a KAnnotatedElement: $this")
 }
 
 private fun bfs(root: KAnnotatedElement, block: (annotation: Annotation) -> Boolean) {
