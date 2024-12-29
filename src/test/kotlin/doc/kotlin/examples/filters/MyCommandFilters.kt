@@ -28,7 +28,7 @@ class MyCommandFilters : TextCommandFilter<String>, ApplicationCommandFilter<Str
     override suspend fun checkSuspend(
         event: GenericCommandInteractionEvent,
         commandInfo: ApplicationCommandInfo
-    ): String? = check(event.guildChannel)
+    ): String? = check(event.messageChannel)
 
     private fun check(channel: Channel): String? {
         if (channel.idLong != 722891685755093076) {
