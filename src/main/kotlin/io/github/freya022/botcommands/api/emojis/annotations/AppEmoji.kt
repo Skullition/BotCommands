@@ -30,6 +30,6 @@ annotation class AppEmoji(
     companion object {
 
         @get:JvmSynthetic
-        internal const val DEFAULT = "default"
+        internal const val DEFAULT = ""
     }
 }

@@ -99,8 +99,8 @@ internal class AppEmojisLoader internal constructor(
 
         eagerProperties.forEach { property ->
             val fieldAnnotation = property.findAnnotationRecursive<AppEmoji>()
-            val assetPattern = fieldAnnotation?.assetPattern?.takeIf { it !== AppEmoji.DEFAULT }
-            val emojiName = fieldAnnotation?.emojiName?.takeIf { it !== AppEmoji.DEFAULT }
+            val assetPattern = fieldAnnotation?.assetPattern?.takeIf { it != AppEmoji.DEFAULT }
+            val emojiName = fieldAnnotation?.emojiName?.takeIf { it != AppEmoji.DEFAULT }
 
             registerFromProperty(
                 property,
