@@ -46,6 +46,13 @@ interface BDatabaseConfigConfigurer : BConfigurer<BDatabaseConfigBuilder>
 interface BLocalizationConfigConfigurer : BConfigurer<BLocalizationConfigBuilder>
 
 /**
+ * Configurer for [BAppEmojisConfig].
+ *
+ * Only usable with Spring.
+ */
+interface BAppEmojisConfigConfigurer : BConfigurer<BAppEmojisConfigBuilder>
+
+/**
  * Configurer for [BTextConfig].
  *
  * Only usable with Spring.
