@@ -14,6 +14,7 @@ import io.github.freya022.botcommands.internal.commands.application.context.user
 import io.github.freya022.botcommands.internal.commands.application.mixins.TopLevelApplicationCommandInfoMixin
 import io.github.freya022.botcommands.internal.commands.application.options.ApplicationGeneratedOption
 import io.github.freya022.botcommands.internal.commands.application.slash.SlashUtils.getCheckedDefaultValue
+import io.github.freya022.botcommands.internal.commands.text.TextUtils.getSpacedPath
 import io.github.freya022.botcommands.internal.core.options.OptionImpl
 import io.github.freya022.botcommands.internal.core.options.OptionType
 import io.github.freya022.botcommands.internal.core.reflection.toMemberParamFunction
@@ -94,5 +95,9 @@ internal class UserCommandInfoImpl internal constructor(
         }
 
         return tryInsertNullableOption(value, option, optionMap)
+    }
+
+    override fun toString(): String {
+        return "User context '${path.getSpacedPath()}' @ ${function.shortSignature}"
     }
 }
