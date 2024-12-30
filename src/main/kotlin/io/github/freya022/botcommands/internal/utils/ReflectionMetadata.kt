@@ -14,6 +14,7 @@ import io.github.freya022.botcommands.api.core.utils.*
 import io.github.freya022.botcommands.internal.commands.CommandsPresenceChecker
 import io.github.freya022.botcommands.internal.core.HandlersPresenceChecker
 import io.github.freya022.botcommands.internal.core.service.BotCommandsBootstrap
+import io.github.freya022.botcommands.internal.emojis.AppEmojiContainerProcessor
 import io.github.freya022.botcommands.internal.parameters.resolvers.ResolverSupertypeChecker
 import io.github.freya022.botcommands.internal.utils.ReflectionMetadata.ClassMetadata
 import io.github.freya022.botcommands.internal.utils.ReflectionMetadata.MethodMetadata
@@ -84,7 +85,7 @@ private class ReflectionMetadataScanner private constructor(
     private val classGraphProcessors: List<ClassGraphProcessor> =
         config.classGraphProcessors +
                 bootstrap.classGraphProcessors +
-                listOf(CommandsPresenceChecker(), ResolverSupertypeChecker(), HandlersPresenceChecker())
+                listOf(CommandsPresenceChecker(), ResolverSupertypeChecker(), HandlersPresenceChecker(), AppEmojiContainerProcessor)
 
     private val classMetadataMap: MutableMap<Class<*>, ClassMetadata> = hashMapOf()
     private val methodMetadataMap: MutableMap<Executable, MethodMetadata> = hashMapOf()

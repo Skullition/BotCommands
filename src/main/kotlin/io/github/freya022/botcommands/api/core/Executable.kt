@@ -72,14 +72,14 @@ interface Executable {
     fun hasAnnotation(annotationType: Class<out Annotation>) = function.hasAnnotationRecursive(annotationType.kotlin)
 
     /**
-     * Finds a single annotation of type [annotationType] from the annotated element.
+     * Finds a single annotation of type [annotationType] from this executable's function.
      *
      * The search is breadth-first and considers meta-annotations.
      */
     fun <A : Annotation> findAnnotation(annotationType: Class<out A>) = function.findAnnotationRecursive(annotationType.kotlin)
 
     /**
-     * Finds all annotations of type [annotationType] from the annotated element.
+     * Finds all annotations of type [annotationType] from this executable's function.
      *
      * The search is breadth-first and considers meta-annotations.
      *
@@ -90,14 +90,14 @@ interface Executable {
     fun <A : Annotation> findAllAnnotations(annotationType: Class<out A>, rootOverride: Boolean) = function.findAllAnnotations(annotationType.kotlin)
 
     /**
-     * Finds all annotations meta-annotated with [annotationType] from the annotated element.
+     * Finds all annotations meta-annotated with [annotationType] from this executable's function.
      *
      * The search is breadth-first and considers meta-annotations.
      */
     fun <A : Annotation> findAllAnnotationsWith(annotationType: Class<out A>) = function.findAllAnnotationsWith(annotationType.kotlin)
 
     /**
-     * Finds all annotations from the annotated element.
+     * Finds all annotations from this executable's function.
      *
      * The search is breadth-first and considers meta-annotations.
      */
@@ -112,14 +112,14 @@ interface Executable {
 inline fun <reified A : Annotation> Executable.hasAnnotation() = function.hasAnnotationRecursive<A>()
 
 /**
- * Finds a single annotation of type [A] from the annotated element.
+ * Finds a single annotation of type [A] from this executable's function.
  *
  * The search is breadth-first and considers meta-annotations.
  */
 inline fun <reified A : Annotation> Executable.findAnnotation() = function.findAnnotationRecursive<A>()
 
 /**
- * Finds all annotations of type [A] from the annotated element.
+ * Finds all annotations of type [A] from this executable's function.
  *
  * The search is breadth-first and considers meta-annotations.
  *
@@ -130,7 +130,7 @@ inline fun <reified A : Annotation> Executable.findAnnotation() = function.findA
 inline fun <reified A : Annotation> Executable.findAllAnnotations(rootOverride: Boolean = true) = function.findAllAnnotations<A>(rootOverride)
 
 /**
- * Finds all annotations meta-annotated with [A] from the annotated element.
+ * Finds all annotations meta-annotated with [A] from this executable's function.
  *
  * The search is breadth-first and considers meta-annotations.
  */

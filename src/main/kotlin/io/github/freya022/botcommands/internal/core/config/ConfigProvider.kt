@@ -12,6 +12,7 @@ internal open class ConfigProvider {
     internal open fun bConfig(
         coreConfiguration: BotCommandsCoreConfiguration, coreConfigurers: List<BConfigConfigurer>,
         databaseConfiguration: BotCommandsDatabaseConfiguration, databaseConfigurers: List<BDatabaseConfigConfigurer>,
+        appEmojisConfiguration: BotCommandsAppEmojisConfiguration, appEmojisConfigurers: List<BAppEmojisConfigConfigurer>,
         textConfiguration: BotCommandsTextConfiguration, textConfigurers: List<BTextConfigConfigurer>,
         localizationConfiguration: BotCommandsLocalizationConfiguration, localizationConfigurers: List<BLocalizationConfigConfigurer>,
         applicationConfiguration: BotCommandsApplicationConfiguration, applicationConfigurers: List<BApplicationConfigConfigurer>,
@@ -23,6 +24,7 @@ internal open class ConfigProvider {
             .applyConfig(coreConfiguration)
             .apply {
                 databaseConfig.applyConfig(databaseConfiguration).configure(databaseConfigurers)
+                appEmojisConfig.applyConfig(appEmojisConfiguration).configure(appEmojisConfigurers)
                 textConfig.applyConfig(textConfiguration).configure(textConfigurers)
                 localizationConfig.applyConfig(localizationConfiguration).configure(localizationConfigurers)
                 applicationConfig.applyConfig(applicationConfiguration).configure(applicationConfigurers)
@@ -45,6 +47,10 @@ internal open class ConfigProvider {
     @Bean
     @Primary
     internal open fun bDatabaseConfig(config: BConfig): BDatabaseConfig = config.databaseConfig
+
+    @Bean
+    @Primary
+    internal open fun bAppEmojisConfig(config: BConfig): BAppEmojisConfig = config.appEmojisConfig
 
     @Bean
     @Primary

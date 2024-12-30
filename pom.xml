@@ -9,7 +9,7 @@
     <!-- Major for big breaking changes, minor for small breaking changes / possibly features, revision for bugfix/features -->
     <!-- Classifier is optional and can be either alpha or beta -->
     <!-- _DEV is removed by the CI release -->
-    <version>3.0.0-alpha.21_DEV</version>
+    <version>3.0.0-alpha.22_DEV</version>
     <name>BotCommands</name>
 
     <description>A Kotlin-first (and Java) framework that makes creating Discord bots a piece of cake, using the JDA library.</description>
@@ -619,6 +619,24 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.9.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk-jvm</artifactId>
+            <version>1.13.13</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency> <!-- Upgrade because kotlinx-coroutines-debug somehow has an ANCIENT version -->
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.14.17</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.14.17</version>
             <scope>test</scope>
         </dependency>
         <dependency>
